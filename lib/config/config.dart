@@ -1,14 +1,13 @@
-/// Exposes [Config] class for OTA analytics parametrization.
+/// @nodoc
 library config;
 
 import 'dart:convert' show json;
 
 import 'package:http/http.dart' show get;
 
-// [Config] constants: `defaults` for all config
-import './config_settings.dart' show defaults;
+import './config_defaults.dart' show defaults;
 
-/// Storage for SDK-wide analytics settings, with OTA support.
+/// @nodoc
 class Config {
   static Map<String, dynamic> _remoteConfig;
 

@@ -1,3 +1,6 @@
+## [v0.3.3](https://github.com/oakromulo/flutter_analytics/tree/v0.3.3) - 2019-06-17
+- Improved documentation
+
 ## [v0.3.2](https://github.com/oakromulo/flutter_analytics/tree/v0.3.2) - 2019-06-17
 - Improved example
 
