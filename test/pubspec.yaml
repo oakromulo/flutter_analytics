@@ -3,7 +3,8 @@ description: dummy app for integration tests
 version: 5.6.7+8
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  flutter: ^1.5.3
+  sdk: ">=2.3.0-dev <3.0.0"
 
 dependencies:
   flutter:

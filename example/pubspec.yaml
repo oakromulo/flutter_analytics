@@ -2,7 +2,8 @@ name: flutter_analytics_example
 version: 0.6.7+5
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  flutter: ^1.5.3
+  sdk: ">=2.3.0-dev <3.0.0"
 
 dependencies:
   flutter:
