@@ -1,0 +1,22 @@
+name: test_app
+description: dummy app for integration tests
+version: 5.6.7+8
+
+environment:
+  sdk: ">=2.2.2 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_analytics:
+    path: ../
+
+dev_dependencies:
+  flutter_driver:
+    sdk: flutter
+  test: any
+
+flutter:
+  assets:
+    - .config_url
+  uses-material-design: true

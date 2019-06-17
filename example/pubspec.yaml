@@ -1,0 +1,16 @@
+name: flutter_analytics_example
+version: 0.6.7+5
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_analytics:
+    path: ../
+
+flutter:
+  assets:
+    - .config_url
+  uses-material-design: true
