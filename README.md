@@ -9,7 +9,7 @@ Add dependency to `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  flutter_analytics: ^0.3.1
+  flutter_analytics: ^0.3.2
 ```
 
 Run in your terminal:
@@ -26,16 +26,16 @@ import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
 // initial setup to run once on application lifecycle, no need to be awaited
 Analytics.setup(
   configUrl: 'https://remote.config',
-  destinations: ['https://analytics.server'],
-  onFlush: (batch) => debugPrint(batch.toString()),
+  destinations: ['https://remote.server'],
+  onFlush: (batch) => batch.forEach(print),
   orgId: '775b5322-287b-4ca7-a750-86e5e848d226',
 );
 
-// uniquely identify current app user (pass `null` if unknown)
-Analytics.identify('anUserId');
-
-// uniquely identify group of users (it could be an `appId` or `channelId`)
+// uniquely identify group of users
 Analytics.group('someGroupId', { 'numTrait': 7, 'txtTrait': 'tGroup' });
+
+// uniquely identify current user and its traits
+Analytics.identify('anUserId', { 'numTrait': 5, 'txtTrait': 'uUser' });
 
 // identify current screen being viewed
 Analytics.screen('My Screen', { 'numProp': -1, 'txtProp': 'pScreen'});
@@ -43,8 +43,8 @@ Analytics.screen('My Screen', { 'numProp': -1, 'txtProp': 'pScreen'});
 // track discrete events
 Analytics.track('Any Event', { 'numProp': 3, 'txtProp': 'pTrack'});
 
-// force the SDK to dispatch locally buffered events to remote destination(s)
-Analytics.flush()
+// manually force the SDK to dispatch locally buffered events
+Analytics.flush();
 ```
 
 ## Example
