@@ -24,7 +24,7 @@ import './util/util.dart' show base64GzipList, debugError, EventBuffer;
 
 /// Static singleton class for single-ended app-wide datalogging.
 class Analytics {
-  /// No intantiation allowed.
+  /// @nodoc
   Analytics.private();
 
   static bool _ready = false;
