@@ -10,10 +10,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'package:flutter_analytics/flutter_analytics.dart';
-import 'package:flutter_analytics/version_control.dart';
+import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
+import 'package:flutter_analytics/version_control.dart'
+    show sdkName, sdkVersion;
 
 void main() => runApp(_MyApp());
+
+const _org = 'integrationTests';
 
 class _MyApp extends StatefulWidget {
   @override
@@ -28,8 +31,7 @@ class _MyAppState extends State<_MyApp> {
   final Future<String> configUrl = rootBundle.loadString('.config_url');
 
   Future<String> localTest() async {
-    Analytics.setup(
-        AnalyticsSetup(orgId: 'localTest', configUrl: await configUrl));
+    Analytics.setup(orgId: _org, configUrl: await configUrl);
 
     Analytics.flush((_) async => true);
 
@@ -59,7 +61,7 @@ class _MyAppState extends State<_MyApp> {
           assert(props['sdk']['setupId'] == firstSdk['setupId']);
         }
 
-        assert(props['orgId'] == 'localTest');
+        assert(props['orgId'] == _org);
 
         switch (i) {
           case 0:
@@ -98,8 +100,7 @@ class _MyAppState extends State<_MyApp> {
 
     final onFlush = (List<Map<String, dynamic>> batch) => batches.add(batch);
 
-    Analytics.setup(AnalyticsSetup(
-        configUrl: await configUrl, onFlush: onFlush, orgId: 'remoteTest'));
+    Analytics.setup(configUrl: await configUrl, onFlush: onFlush, orgId: _org);
 
     Analytics.flush();
 
@@ -141,8 +142,7 @@ class _MyAppState extends State<_MyApp> {
 
     final onFlush = (List<Map<String, dynamic>> b) => _evtCnt += b.length;
 
-    Analytics.setup(AnalyticsSetup(
-        configUrl: await configUrl, onFlush: onFlush, orgId: 'throughputTest'));
+    Analytics.setup(configUrl: await configUrl, onFlush: onFlush, orgId: _org);
 
     for (;;) {
       Analytics.track('Load Test Event');

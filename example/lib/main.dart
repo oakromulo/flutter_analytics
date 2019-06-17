@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'package:flutter_analytics/flutter_analytics.dart';
+import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
 
 void main() => runApp(_MyApp());
 
@@ -10,11 +10,11 @@ class _MyApp extends StatelessWidget {
   Future<void> _mainTest() async {
     debugPrint('prepare for main test');
 
-    Analytics.setup(AnalyticsSetup(
+    Analytics.setup(
       configUrl: await rootBundle.loadString('.config_url'),
       onFlush: (batch) => debugPrint('all flushed: ${batch.length}'),
-      orgId: 'a73e08a5-d2ae-468e-9595-5440b0a66c33',
-    ));
+      orgId: '775b5322-287b-4ca7-a750-86e5e848d226',
+    );
 
     Analytics.track('Push Notification Received', <String, dynamic>{
       'url': 'app://deeplink/post/5b450fd6504f3fec66bb99bc?src=push'

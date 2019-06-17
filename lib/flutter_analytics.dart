@@ -66,8 +66,25 @@ class Analytics {
   /// an unawaited [group] may be immediately after a [setup] call but if for
   /// whatever reason [setup] fails then a `AnalyticsNotReady` exception gets
   /// thrown just as if [group] preceded the initial [setup].
-  static Future<void> setup([AnalyticsSetup settings]) =>
-      _BaseEvent(_BaseEventType.SETUP, setup: settings).future(_buffer);
+  ///
+  /// Params:
+  /// - [configUrl]: remote url to load OTA settings for analytics.
+  /// - [destinations]: list of POST endpoints able to receive analytics
+  /// - [onFlush]: callback to be called after every event batch being flushed
+  /// - [orgId]: unique identifier for the top-level org in analytics events.
+  static Future<void> setup(
+      {String configUrl,
+      List<String> destinations,
+      OnBatchFlush onFlush,
+      String orgId}) {
+    final setup = _Setup(
+        configUrl: configUrl,
+        destinations: destinations,
+        onFlush: onFlush,
+        orgId: orgId);
+
+    return _BaseEvent(_BaseEventType.SETUP, setup: setup).future(_buffer);
+  }
 
   /// Triggers a manual flush operation to clear all local buffers.
   ///
@@ -323,7 +340,7 @@ class _BaseEvent {
   final Segment child;
   final bool enabled;
   final OnFlush flush;
-  final AnalyticsSetup setup;
+  final _Setup setup;
 
   final Completer<void> completer = Completer();
 
@@ -334,21 +351,12 @@ class _BaseEvent {
   }
 }
 
-/// [Analytics.setup] input params helper class for static typing.
-class AnalyticsSetup {
-  /// [Analytics.setup] input params.
-  AnalyticsSetup({this.configUrl, this.destinations, this.onFlush, this.orgId});
+class _Setup {
+  _Setup({this.configUrl, this.destinations, this.onFlush, this.orgId});
 
-  /// Optional remote url to load OTA settings for analytics.
   final String configUrl;
-
-  /// Optional list of HTTP POST endpoints capable of ACKing analytics requests.
   final List<String> destinations;
-
-  /// Optional callback to be called after every event batch being flushed.
   final OnBatchFlush onFlush;
-
-  /// Unique identifier of current organization receiving analytics events.
   final String orgId;
 }
 

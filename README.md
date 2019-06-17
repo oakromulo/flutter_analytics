@@ -24,7 +24,12 @@ flutter packages get
 import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
 
 // initial setup to run once on application lifecycle, no need to be awaited
-Analytics.setup();
+Analytics.setup(
+  configUrl: 'https://remote.config',
+  destinations: ['https://analytics.server'],
+  onFlush: (batch) => debugPrint(batch.toString()),
+  orgId: '775b5322-287b-4ca7-a750-86e5e848d226',
+);
 
 // uniquely identify current app user (pass `null` if unknown)
 Analytics.identify('anUserId');
