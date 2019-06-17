@@ -1,8 +1,8 @@
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 
-const oneSec = Duration(seconds: 1);
-const tenSecs = Duration(seconds: 10);
+const _oneSec = Duration(seconds: 1);
+const _tenSecs = Duration(seconds: 10);
 
 void main() {
   group('Integration Test App', () {
@@ -27,12 +27,12 @@ void main() {
     });
 
     test('run local test', () async {
-      await driver.tap(localFinder, timeout: tenSecs);
+      await driver.tap(localFinder, timeout: _tenSecs);
 
       bool success = false;
 
       while (true) {
-        final txt = await driver.getText(txt1Finder, timeout: tenSecs);
+        final txt = await driver.getText(txt1Finder, timeout: _tenSecs);
 
         if (txt.contains('success')) {
           success = true;
@@ -44,19 +44,19 @@ void main() {
           break;
         }
 
-        await Future<void>.delayed(oneSec);
+        await Future<void>.delayed(_oneSec);
       }
 
       expect(success, true);
     });
 
     test('run remote test', () async {
-      await driver.tap(remoteFinder, timeout: tenSecs);
+      await driver.tap(remoteFinder, timeout: _tenSecs);
 
       bool success = false;
 
       while (true) {
-        final txt = await driver.getText(txt2Finder, timeout: tenSecs);
+        final txt = await driver.getText(txt2Finder, timeout: _tenSecs);
 
         if (txt.contains('success')) {
           success = true;
@@ -68,19 +68,19 @@ void main() {
           break;
         }
 
-        await Future<void>.delayed(oneSec);
+        await Future<void>.delayed(_oneSec);
       }
 
       expect(success, true);
     });
 
     test('run throughput test', () async {
-      await driver.tap(tputFinder, timeout: tenSecs);
+      await driver.tap(tputFinder, timeout: _tenSecs);
 
       bool success = false;
 
       while (true) {
-        final txt = await driver.getText(txt3Finder, timeout: tenSecs);
+        final txt = await driver.getText(txt3Finder, timeout: _tenSecs);
 
         if (txt.contains('success')) {
           success = true;
@@ -92,7 +92,7 @@ void main() {
           break;
         }
 
-        await Future<void>.delayed(oneSec);
+        await Future<void>.delayed(_oneSec);
       }
 
       expect(success, true);

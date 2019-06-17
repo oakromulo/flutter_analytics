@@ -8,13 +8,18 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 
-import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
-import 'package:flutter_analytics/version_control.dart'
-    show sdkName, sdkVersion;
+import 'package:flutter_analytics/flutter_analytics.dart';
+import 'package:flutter_analytics/version_control.dart';
 
-void main() => runApp(_MyApp());
+import 'package:flutter_driver/driver_extension.dart';
+
+/// @nodoc
+void main() {
+  enableFlutterDriverExtension();
+  runApp(_MyApp());
+}
 
 const _org = 'integrationTests';
 

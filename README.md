@@ -61,7 +61,7 @@ flutter run
 ```sh
 cd ~/flutter_analytics/test
 flutter packages get
-flutter drive --target=test_driver/app.dart
+flutter drive --target=lib/main.dart
 ```
 
 ## Documentation
