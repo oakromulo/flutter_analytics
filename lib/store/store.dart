@@ -33,11 +33,11 @@ class Store {
 
   /// @nodoc
   Future<String> get groupId => _get('groupId');
-  void set groupId(Future<String> groupId) => _set('groupId', groupId);
+  set groupId(Future<String> groupId) => _set('groupId', groupId);
 
   /// @nodoc
   Future<String> get orgId => _get('orgId');
-  void set orgId(Future<String> orgId) => _set('orgId', orgId);
+  set orgId(Future<String> orgId) => _set('orgId', orgId);
 
   /// @nodoc
   Future<String> get sessionId async {
@@ -50,11 +50,11 @@ class Store {
 
   /// @nodoc
   Future<String> get setupId => _get('setupId');
-  void set setupId(Future<String> setupId) => _set('setupId', setupId);
+  set setupId(Future<String> setupId) => _set('setupId', setupId);
 
   /// @nodoc
   Future<String> get userId => _get('userId');
-  void set userId(Future<String> userId) => _set('userId', userId);
+  set userId(Future<String> userId) => _set('userId', userId);
 
   Future<String> _get(String key) =>
       _StoreEvent(_StoreEventType.GET, key: key).future(_buffer);
