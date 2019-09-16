@@ -9,7 +9,7 @@ Add dependency to `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  flutter_analytics: ^0.3.3
+  flutter_analytics: ^0.3.4
 ```
 
 Run in your terminal:
@@ -65,6 +65,7 @@ flutter drive --target=lib/main.dart
 ```
 
 ## Documentation
+
 ```sh
 cd ~/flutter_analytics
 rm -rf doc

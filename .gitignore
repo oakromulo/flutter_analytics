@@ -32,4 +32,5 @@ pubspec.lock
 .pub/
 doc/
 build/
-example/ios/Flutter/App.framework/flutter_assets/kernel_blob.bin
+**/ios/Flutter/App.framework/flutter_assets/kernel_blob.bin
+**/ios/Flutter/flutter_export_environment.sh
