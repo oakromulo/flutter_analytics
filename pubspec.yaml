@@ -13,7 +13,6 @@ environment:
 dependencies:
   connectivity: ^0.4.4
   device_info: ^0.4.0+2
-  devicelocale: ^0.1.1
   devicelocale: ^0.2.0
   flutter:
     sdk: flutter
