@@ -1,3 +1,7 @@
+## [v0.3.4+1](https://github.com/oakromulo/flutter_analytics/tree/v0.3.4+1) - 2019-09-17
+
+- Minor maintenance
+
 ## [v0.3.4](https://github.com/oakromulo/flutter_analytics/tree/v0.3.4) - 2019-09-16
 
 - Updated dependencies
