@@ -1,3 +1,7 @@
+## [v0.3.5](https://github.com/oakromulo/flutter_analytics/tree/v0.3.5) - 2019-09-25
+
+- Improved debugging and error handling
+
 ## [v0.3.4+1](https://github.com/oakromulo/flutter_analytics/tree/v0.3.4+1) - 2019-09-17
 
 - Minor maintenance

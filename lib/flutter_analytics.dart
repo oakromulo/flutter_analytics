@@ -20,7 +20,8 @@ import 'package:uuid/uuid.dart' show Uuid;
 import './config/config.dart' show Config;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './store/store.dart' show Store;
-import './util/util.dart' show base64GzipList, debugError, EventBuffer;
+import './util/util.dart'
+    show base64GzipList, debugError, debugLog, EventBuffer;
 
 /// Static singleton class for single-ended app-wide datalogging.
 class Analytics {
@@ -34,7 +35,7 @@ class Analytics {
   static List<PersistentQueue> _queues;
 
   static List<String> _destinations = [];
-  static OnBatchFlush _onBatchFlush = (_) => null;
+  static OnBatchFlush _onBatchFlush = (_) => {};
   static final EventBuffer<_BaseEvent> _buffer = EventBuffer(_onEvent);
 
   /// Data collection readiness: `true` after a successful [Analytics.setup].
@@ -193,9 +194,13 @@ class Analytics {
         throw firstError;
       }
 
+      debugLog('successful flush');
+
       event.completer.complete();
-    } catch (e) {
-      debugError(e);
+    } catch (e, s) {
+      debugLog('failed flush attempt');
+      debugError(e, s);
+
       event.completer.completeError(e);
     }
   }
@@ -216,12 +221,16 @@ class Analytics {
         try {
           await pq.push(payload);
         } catch (e, s) {
+          debugLog('an analytics payload has not been buffered');
           debugError(e, s);
         }
       }
 
       event.completer.complete();
     } catch (e, s) {
+      debugLog('an analytics payload could not be logged');
+      debugError(e, s);
+
       event.completer.completeError(e, s);
     }
   }
@@ -247,7 +256,7 @@ class Analytics {
         _destinations = Set<String>.of(dupDestinations).toList();
       }
 
-      _onBatchFlush = event.setup.onFlush;
+      _onBatchFlush = event.setup.onFlush ?? (_) => {};
 
       final store = Store();
 
@@ -259,9 +268,14 @@ class Analytics {
 
       _queues = await _initQueues();
 
+      debugLog('successful setup');
+
       _ready = true;
       event.completer.complete();
     } catch (e, s) {
+      debugLog('failed setup attempt');
+      debugError(e, s);
+
       _ready = false;
       event.completer.completeError(e, s);
     }
@@ -275,13 +289,16 @@ class Analytics {
   static Future<bool> _onQueueFlush(
       String url, List<Map<String, dynamic>> batch) async {
     try {
-      _fillSentAt(batch);
-      await _post(url, batch);
+      if (batch.isNotEmpty && url.trim().isNotEmpty) {
+        _fillSentAt(batch);
+        await _post(url, batch);
+      }
 
       _onBatchFlush(batch);
 
       return true;
     } catch (e, s) {
+      debugLog('an analytics call could not be logged');
       debugError(e, s);
 
       return false;
@@ -317,15 +334,24 @@ class Analytics {
     final queues = <PersistentQueue>[];
 
     for (final url in _destinations) {
-      final pq = PersistentQueue('__analytics_${queues.length}__',
-          onFlush: (batch) => _onQueueFlush(url, batch),
-          flushAt: _config.flushAtLength,
-          flushTimeout: _config.flushAtDuration,
-          maxLength: _config.maxQueueLength);
+      if (url.trim().isEmpty) {
+        continue;
+      }
 
-      await pq.ready;
+      try {
+        final pq = PersistentQueue('__analytics_${queues.length}__',
+            onFlush: (batch) => _onQueueFlush(url, batch),
+            flushAt: _config.flushAtLength,
+            flushTimeout: _config.flushAtDuration,
+            maxLength: _config.maxQueueLength);
 
-      queues.add(pq);
+        await pq.ready;
+
+        queues.add(pq);
+      } catch (e, s) {
+        debugLog('a local buffer could not be created for destination: $url');
+        debugError(e, s);
+      }
     }
 
     return queues;

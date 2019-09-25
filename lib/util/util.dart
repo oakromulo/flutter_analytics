@@ -17,16 +17,23 @@ String dartEnv() =>
     bool.fromEnvironment('dart.vm.product') ? 'PRODUCTION' : 'DEVELOPMENT';
 
 /// @nodoc
-void debugError(dynamic e, [dynamic trace]) =>
-    _debug(() => debugPrint('$e${trace == null ? '' : '\n$trace'}'));
+void debugError(dynamic e, [dynamic trace]) => _debug(() {
+      debugPrint('AnalyticsError:\n$e${trace == null ? '' : '\n$trace'}');
+    });
 
 /// @nodoc
-void debugLog(dynamic msg) => _debug(() => print(msg.toString()));
+void debugLog(dynamic msg) => _debug(() {
+      debugPrint('AnalyticsInfo: ${msg.toString()} @ ${_isoNow()}');
+    });
 
 void _debug(void Function() exec) {
   if (!bool.fromEnvironment('dart.vm.product')) {
     exec();
   }
+}
+
+String _isoNow() {
+  return DateTime.now().toIso8601String();
 }
 
 /// @nodoc
