@@ -1,3 +1,7 @@
+## [v0.4.0](https://github.com/oakromulo/flutter_analytics/tree/v0.4.0) - 2019-09-26
+
+- Implicit cast of DateTime props within payloads to ISOStrings
+
 ## [v0.3.5](https://github.com/oakromulo/flutter_analytics/tree/v0.3.5) - 2019-09-25
 
 - Improved debugging and error handling

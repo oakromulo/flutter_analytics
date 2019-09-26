@@ -26,14 +26,9 @@ void debugLog(dynamic msg) => _debug(() {
       debugPrint('AnalyticsInfo: ${msg.toString()} @ ${_isoNow()}');
     });
 
-void _debug(void Function() exec) {
-  if (!bool.fromEnvironment('dart.vm.product')) {
-    exec();
-  }
-}
-
-String _isoNow() {
-  return DateTime.now().toIso8601String();
+/// @nodoc
+void fixEncoding(Map<String, dynamic> payload) {
+  _fixDateTimeEncoding(payload ?? {});
 }
 
 /// @nodoc
@@ -48,6 +43,38 @@ String hexStringToBase64(String hexString) {
   }
 
   return base64Url.encode(bytes);
+}
+
+void _debug(void Function() exec) {
+  if (!bool.fromEnvironment('dart.vm.product')) {
+    exec();
+  }
+}
+
+// FIXME: a very naïve and inneficient forceful encoding hack here \/
+void _fixDateTimeEncoding(Map<String, dynamic> payload) {
+  payload.forEach((key, value) {
+    try {
+      try {
+        if (value.keys.length > -1) {
+          return _fixDateTimeEncoding(value);
+        }
+      } catch (_) {}
+      try {
+        if (value.toUtc() != null) {
+          try {
+            payload[key] = value.toUtc().toIso8601String();
+          } catch (_) {
+            payload[key] = null;
+          }
+        }
+      } catch (_) {}
+    } catch (_) {}
+  });
+}
+
+String _isoNow() {
+  return DateTime.now().toUtc().toIso8601String();
 }
 
 /// @nodoc

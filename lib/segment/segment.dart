@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart' show Uuid;
 
 import '../context/context.dart' show Context;
 import '../store/store.dart' show Store;
-import '../util/util.dart' as util show dartEnv;
+import '../util/util.dart' show dartEnv, fixEncoding;
 
 export './segment_group.dart' show Group;
 export './segment_identify.dart' show Identify;
@@ -27,7 +27,7 @@ abstract class Segment {
   final Map<String, dynamic> traits;
 
   static final Store _store = Store();
-  static final String _dartEnv = util.dartEnv();
+  static final String _dartEnv = dartEnv();
 
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async {
@@ -41,7 +41,7 @@ abstract class Segment {
       }
     };
 
-    return {
+    final payload = <String, dynamic>{
       'anonymousId': await _store.anonymousId,
       'context': await Context().toMap(),
       'messageId': Uuid().v4(),
@@ -53,6 +53,10 @@ abstract class Segment {
       'type': type.toString().split('.').last.toLowerCase(),
       'userId': await _store.userId
     };
+
+    fixEncoding(payload);
+
+    return payload;
   }
 }
 
