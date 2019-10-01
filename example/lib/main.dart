@@ -5,27 +5,58 @@ import 'package:flutter/services.dart';
 import 'package:flutter_analytics/flutter_analytics.dart';
 
 Future<void> example() async {
-  // initial setup to run once on application lifecycle, no need to be awaited
-  Analytics.setup(
+  // final printer = (b) => {print('⬇⬇⬇\n$b\n⬆⬆⬆')};
+  final printer = (b) {
+    var type = b['type'];
+    var id = b['userId'];
+    print('$type $id');
+  };
+
+  await Analytics.setup(
     configUrl: await configUrl(),
-    onFlush: (batch) => batch.forEach(print),
+    onFlush: (batch) => batch.forEach(printer),
     orgId: '775b5322-287b-4ca7-a750-86e5e848d226',
   );
 
-  // uniquely identify group of users
-  Analytics.group('someGroupId', {'numTrait': 7, 'txtTrait': 'tGroup'});
+  await Analytics.flush();
+  await Analytics.track('A');
+  await Analytics.identify('n/a');
+  await Analytics.track('B');
+  await Analytics.identify('midId');
+  await Analytics.track('C');
+  await Analytics.identify('n/a');
+  await Analytics.track('D');
+  await Analytics.identify('finalId');
+  await Analytics.track('e');
+  await Analytics.flush();
 
-  // uniquely identify current user and its traits
-  Analytics.identify('anUserId', {'numTrait': 5, 'txtTrait': 'uUser'});
+  /*
+  await Analytics.flush();
+  Analytics.track('A');
+  Analytics.identify('n/a');
+  Analytics.track('B');
+  Analytics.identify('midId');
+  Analytics.track('C');
+  Analytics.identify('n/a');
+  Analytics.track('D');
+  Analytics.identify('finalId');
+  Analytics.track('e');
+  await Analytics.flush();
+  */
 
-  // identify current screen being viewed
-  Analytics.screen('My Screen', {'numProp': -1, 'txtProp': 'pScreen'});
-
-  // track discrete events
-  Analytics.track('Any Event', {'numProp': 3, 'txtProp': 'pTrack'});
-
-  // manually force the SDK to dispatch locally buffered events
-  Analytics.flush();
+  /*
+  await Analytics.flush();
+  Analytics.track('A');
+  await Analytics.identify('n/a');
+  Analytics.track('B');
+  await Analytics.identify('midId');
+  Analytics.track('C');
+  await Analytics.identify('n/a');
+  Analytics.track('D');
+  await Analytics.identify('finalId');
+  Analytics.track('E');
+  await Analytics.flush();
+  */
 }
 
 Future<String> runExample() async {

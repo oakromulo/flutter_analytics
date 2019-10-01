@@ -88,6 +88,11 @@ class Store {
         value = item['v'].toString();
       }
 
+      if (event.key == 'userId') {
+        print('GET value: $value');
+      }
+      // print('GET key: ${event.key} value: $value');
+
       event.completer.complete(value);
     } catch (e, s) {
       event.completer.completeError(e, s);
@@ -96,7 +101,14 @@ class Store {
 
   Future<void> _onSet(_StoreEvent event) async {
     try {
-      await _storage.setItem(event.key, {'v': await event.val});
+      final val = await event.val;
+
+      await _storage.setItem(event.key, {'v': val});
+
+      if (event.key == 'userId') {
+        print('SET value: $val');
+      }
+      // print('SET key: ${event.key} value: ${event.val}');
 
       event.completer.complete();
     } catch (e, s) {
