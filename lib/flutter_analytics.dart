@@ -294,12 +294,15 @@ class Analytics {
         await _post(url, batch);
       }
 
-      _onBatchFlush(batch);
+      try {
+        _onBatchFlush(batch);
+      } catch (_) {
+        // forcefully ignore callback errors
+      }
 
       return true;
-    } catch (e, s) {
-      debugLog('an analytics call could not be logged');
-      debugError(e, s);
+    } catch (_) {
+      debugLog('an analytics batch could not be flushed to $url');
 
       return false;
     }
@@ -333,6 +336,13 @@ class Analytics {
   static Future<List<PersistentQueue>> _initQueues() async {
     final queues = <PersistentQueue>[];
 
+    debugLog('''buffering config
+  flush every ${_config.flushAtLength} events
+  max capacity before data loss: ${_config.maxQueueLength} events
+  max local TTL: ${_config.flushAtDuration.inSeconds} seconds
+  max session TTL: ${_config.sessionTimeout.inSeconds} seconds
+  request timeout: ${_config.defaultTimeout.inSeconds} seconds\n   ''');
+
     for (final url in _destinations) {
       if (url.trim().isEmpty) {
         continue;
@@ -348,8 +358,10 @@ class Analytics {
         await pq.ready;
 
         queues.add(pq);
+
+        debugLog('local buffer created succesfully for destination:\n$url');
       } catch (e, s) {
-        debugLog('a local buffer could not be created for destination: $url');
+        debugLog('local buffering could not be setup for destination:\n$url');
         debugError(e, s);
       }
     }
