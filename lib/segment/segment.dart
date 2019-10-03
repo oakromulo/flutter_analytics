@@ -15,16 +15,35 @@ export './segment_track.dart' show Track;
 /// @nodoc
 abstract class Segment {
   /// @nodoc
-  Segment(this.type, {this.properties, this.traits});
+  Segment(this.type,
+      {this.groupId, this.properties, this.traits, this.userId}) {
+    if (groupId != null) {
+      _store.groupId = groupId;
+    } else {
+      groupId = _store.groupId;
+    }
+
+    if (userId != null) {
+      _store.userId = userId;
+    } else {
+      userId = _store.userId;
+    }
+  }
 
   /// @nodoc
   final SegmentTypeEnum type;
+
+  /// @nodoc
+  String groupId;
 
   /// @nodoc
   final Map<String, dynamic> properties;
 
   /// @nodoc
   final Map<String, dynamic> traits;
+
+  /// @nodoc
+  String userId;
 
   static final Store _store = Store();
   static final String _dartEnv = dartEnv();
@@ -43,7 +62,7 @@ abstract class Segment {
 
     final payload = <String, dynamic>{
       'anonymousId': await _store.anonymousId,
-      'context': await Context().toMap(),
+      'context': {...await Context().toMap(), 'groupId': groupId},
       'messageId': Uuid().v4(),
       'properties': (properties ?? {})..addAll(sdkProps),
       'timestamp': DateTime.now().toUtc().toIso8601String(),
@@ -51,7 +70,7 @@ abstract class Segment {
         ..addAll(sdkProps)
         ..remove('id'),
       'type': type.toString().split('.').last.toLowerCase(),
-      'userId': await _store.userId
+      'userId': userId
     };
 
     fixEncoding(payload);

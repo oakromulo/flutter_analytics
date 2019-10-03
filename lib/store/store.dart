@@ -2,6 +2,7 @@
 library store;
 
 import 'dart:async' show Completer;
+import 'dart:io' show File;
 
 import 'package:flutter_udid/flutter_udid.dart' show FlutterUdid;
 import 'package:localstorage/localstorage.dart' show LocalStorage;
@@ -32,8 +33,17 @@ class Store {
       await _get('anonymousId') ?? await _resetAnonymousId();
 
   /// @nodoc
-  Future<String> get groupId => _get('groupId');
-  set groupId(Future<String> groupId) => _set('groupId', groupId);
+  String get groupId {
+    try {
+      return File('group_id').readAsStringSync() ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  set groupId(String groupId) {
+    File('group_id').writeAsStringSync(groupId ?? '');
+  }
 
   /// @nodoc
   Future<String> get orgId => _get('orgId');
@@ -53,8 +63,17 @@ class Store {
   set setupId(Future<String> setupId) => _set('setupId', setupId);
 
   /// @nodoc
-  Future<String> get userId => _get('userId');
-  set userId(Future<String> userId) => _set('userId', userId);
+  String get userId {
+    try {
+      return File('user_id').readAsStringSync() ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  set userId(String userId) {
+    File('user_id').writeAsStringSync(userId ?? '');
+  }
 
   Future<String> _get(String key) =>
       _StoreEvent(_StoreEventType.GET, key: key).future(_buffer);
@@ -104,11 +123,6 @@ class Store {
       final val = await event.val;
 
       await _storage.setItem(event.key, {'v': val});
-
-      if (event.key == 'userId') {
-        print('SET value: $val');
-      }
-      // print('SET key: ${event.key} value: ${event.val}');
 
       event.completer.complete();
     } catch (e, s) {
