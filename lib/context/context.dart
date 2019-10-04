@@ -1,7 +1,6 @@
 /// @nodoc
 library context;
 
-import '../store/store.dart' show Store;
 import '../version_control.dart' show sdkPackage;
 
 import './context_app.dart' show contextApp;
@@ -18,7 +17,6 @@ class Context {
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async => {
         ...await _base,
-        'groupId': await Store().groupId,
         'locale': await contextLocale(),
         'network': await contextNetwork()
       };

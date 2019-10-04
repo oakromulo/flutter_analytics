@@ -2,9 +2,12 @@
 library store;
 
 import 'dart:async' show Completer;
+import 'dart:io' show File;
 
 import 'package:flutter_udid/flutter_udid.dart' show FlutterUdid;
 import 'package:localstorage/localstorage.dart' show LocalStorage;
+import 'package:path_provider/path_provider.dart'
+    show getApplicationDocumentsDirectory;
 import 'package:uuid/uuid.dart' show Uuid;
 
 import '../config/config.dart' show Config;
@@ -16,8 +19,9 @@ class Store {
   factory Store() => _cache ??= Store._internal();
 
   Store._internal() {
-    _buffer = EventBuffer(_onEvent);
+    _init();
 
+    _buffer = EventBuffer(_onEvent);
     _StoreEvent(_StoreEventType.SETUP).future(_buffer).catchError(debugError);
   }
 
@@ -27,13 +31,25 @@ class Store {
   LocalStorage _storage;
   EventBuffer<_StoreEvent> _buffer;
 
+  String _groupId;
+  String _path;
+  String _userId;
+
   /// @nodoc
   Future<String> get anonymousId async =>
       await _get('anonymousId') ?? await _resetAnonymousId();
 
   /// @nodoc
-  Future<String> get groupId => _get('groupId');
-  set groupId(Future<String> groupId) => _set('groupId', groupId);
+  String get groupId => _groupId;
+
+  set groupId(String groupId) {
+    _groupId = groupId;
+
+    File('$_path/group_id')
+        .create()
+        .then((file) => file.writeAsString(groupId ?? ''))
+        .catchError((_) => null);
+  }
 
   /// @nodoc
   Future<String> get orgId => _get('orgId');
@@ -53,8 +69,16 @@ class Store {
   set setupId(Future<String> setupId) => _set('setupId', setupId);
 
   /// @nodoc
-  Future<String> get userId => _get('userId');
-  set userId(Future<String> userId) => _set('userId', userId);
+  String get userId => _userId;
+
+  set userId(String userId) {
+    _userId = userId;
+
+    File('$_path/user_id')
+        .create()
+        .then((file) => file.writeAsString(userId ?? ''))
+        .catchError((_) => null);
+  }
 
   Future<String> _get(String key) =>
       _StoreEvent(_StoreEventType.GET, key: key).future(_buffer);
@@ -96,7 +120,9 @@ class Store {
 
   Future<void> _onSet(_StoreEvent event) async {
     try {
-      await _storage.setItem(event.key, {'v': await event.val});
+      final val = await event.val;
+
+      await _storage.setItem(event.key, {'v': val});
 
       event.completer.complete();
     } catch (e, s) {
@@ -115,6 +141,22 @@ class Store {
     } catch (e, s) {
       event.completer.completeError(e, s);
     }
+  }
+
+  void _init() {
+    getApplicationDocumentsDirectory().then((dir) {
+      _path = dir.path;
+
+      File('$_path/user_id')
+          .readAsString()
+          .then((userId) => _userId = userId)
+          .catchError((_) => null);
+
+      File('$_path/group_id')
+          .readAsString()
+          .then((groupId) => _groupId = groupId)
+          .catchError((_) => null);
+    }).catchError((_) => null);
   }
 
   Future<bool> _isSessionInvalid() async {
