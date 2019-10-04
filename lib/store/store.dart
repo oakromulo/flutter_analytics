@@ -6,6 +6,8 @@ import 'dart:io' show File;
 
 import 'package:flutter_udid/flutter_udid.dart' show FlutterUdid;
 import 'package:localstorage/localstorage.dart' show LocalStorage;
+import 'package:path_provider/path_provider.dart'
+    show getApplicationDocumentsDirectory;
 import 'package:uuid/uuid.dart' show Uuid;
 
 import '../config/config.dart' show Config;
@@ -17,8 +19,9 @@ class Store {
   factory Store() => _cache ??= Store._internal();
 
   Store._internal() {
-    _buffer = EventBuffer(_onEvent);
+    _init();
 
+    _buffer = EventBuffer(_onEvent);
     _StoreEvent(_StoreEventType.SETUP).future(_buffer).catchError(debugError);
   }
 
@@ -28,21 +31,24 @@ class Store {
   LocalStorage _storage;
   EventBuffer<_StoreEvent> _buffer;
 
+  String _groupId;
+  String _path;
+  String _userId;
+
   /// @nodoc
   Future<String> get anonymousId async =>
       await _get('anonymousId') ?? await _resetAnonymousId();
 
   /// @nodoc
-  String get groupId {
-    try {
-      return File('group_id').readAsStringSync() ?? '';
-    } catch (_) {
-      return '';
-    }
-  }
+  String get groupId => _groupId;
 
   set groupId(String groupId) {
-    File('group_id').writeAsStringSync(groupId ?? '');
+    _groupId = groupId;
+
+    File('$_path/group_id')
+        .create()
+        .then((file) => file.writeAsString(groupId ?? ''))
+        .catchError((_) => null);
   }
 
   /// @nodoc
@@ -63,16 +69,15 @@ class Store {
   set setupId(Future<String> setupId) => _set('setupId', setupId);
 
   /// @nodoc
-  String get userId {
-    try {
-      return File('user_id').readAsStringSync() ?? '';
-    } catch (_) {
-      return '';
-    }
-  }
+  String get userId => _userId;
 
   set userId(String userId) {
-    File('user_id').writeAsStringSync(userId ?? '');
+    _userId = userId;
+
+    File('$_path/user_id')
+        .create()
+        .then((file) => file.writeAsString(userId ?? ''))
+        .catchError((_) => null);
   }
 
   Future<String> _get(String key) =>
@@ -107,11 +112,6 @@ class Store {
         value = item['v'].toString();
       }
 
-      if (event.key == 'userId') {
-        print('GET value: $value');
-      }
-      // print('GET key: ${event.key} value: $value');
-
       event.completer.complete(value);
     } catch (e, s) {
       event.completer.completeError(e, s);
@@ -141,6 +141,22 @@ class Store {
     } catch (e, s) {
       event.completer.completeError(e, s);
     }
+  }
+
+  void _init() {
+    getApplicationDocumentsDirectory().then((dir) {
+      _path = dir.path;
+
+      File('$_path/user_id')
+          .readAsString()
+          .then((userId) => _userId = userId)
+          .catchError((_) => null);
+
+      File('$_path/group_id')
+          .readAsString()
+          .then((groupId) => _groupId = groupId)
+          .catchError((_) => null);
+    }).catchError((_) => null);
   }
 
   Future<bool> _isSessionInvalid() async {
