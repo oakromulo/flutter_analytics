@@ -1,3 +1,7 @@
+## [v0.4.1](https://github.com/oakromulo/flutter_analytics/tree/v0.4.1) - 2019-10-03
+
+- Improve persistency of `groupId` and `userId`
+
 ## [v0.4.0](https://github.com/oakromulo/flutter_analytics/tree/v0.4.0) - 2019-09-26
 
 - Implicit cast of DateTime props within payloads to ISOStrings
