@@ -62,12 +62,8 @@ class Config {
 
   /// Downloads remote OTA settings from the specified URL.
   Future<void> download(String url) async {
-    try {
-      final timeout = Duration(seconds: defaults['defaultTimeoutSecs']);
+    final timeout = Duration(seconds: defaults['defaultTimeoutSecs']);
 
-      _remoteConfig = json.decode((await get(url).timeout(timeout)).body);
-    } catch (_) {
-      return;
-    }
+    _remoteConfig = json.decode((await get(url).timeout(timeout)).body);
   }
 }
