@@ -9,11 +9,16 @@ import './config_defaults.dart' show defaults;
 
 /// @nodoc
 class Config {
-  static Map<String, dynamic> _remoteConfig;
+  /// @nodoc
+  factory Config() => _config;
+
+  Config._internal();
+
+  static final Config _config = Config._internal();
+
+  Map<String, dynamic> _remoteConfig;
 
   /// SDK-wide default maximum duration to await for HTTPS requests
-  ///
-  /// used e.g. to determine how long until all flush operations times out
   Duration get defaultTimeout => Duration(seconds: _get('defaultTimeoutSecs'));
 
   /// Array of POST-ready [HTTPS] URIs that should have analytics event batches
@@ -27,10 +32,10 @@ class Config {
     }
   }
 
-  /// Target # of events, a.k.a. `batchSize`, on each [Analytics.flush].
+  /// Target # of events, a.k.a. `batchSize`, on each [Analytics.flush]
   ///
   /// When this amount is reached an automatic (implicit) flush operation gets
-  /// to dispatch all locally-buffered events to the desired [destinations].
+  /// to dispatch all locally-buffered events to the desired [destinations]
   ///
   /// p.s. this number is not hardly enforced - the actual number of events
   /// flushed manually triggered flushes, previously failed flush attempts
@@ -40,12 +45,12 @@ class Config {
   /// Target max. [Duration] to store an event locally from trigger to flush.
   Duration get flushAtDuration => Duration(seconds: _get('flushAtSecs'));
 
-  /// Hard max. # of events to be stored locally for a given _destination_.
+  /// Hard max. # of events to be stored locally for a given _destination_
   ///
   /// p.s. data loss occurs when [maxQueueLength] is reached
   int get maxQueueLength => _get('maxQueueLength') + 0;
 
-  /// Maximum session [Duration].
+  /// Maximum session [Duration]
   Duration get sessionTimeout => Duration(seconds: _get('sessionTimeoutSecs'));
 
   dynamic _get(String key) {
