@@ -113,13 +113,13 @@ class _MyAppState extends State<_MyApp> {
     });
 
     Analytics.screen('Post Viewer', <String, dynamic>{
-      'url': 'app://deeplink.fanhero/post/5b450fd6504f3fec66bb99bc?src=push'
+      'url': 'app://deeplink.myapp/post/5b450fd6504f3fec66bb99bc?src=push'
     });
 
     Analytics.track('Some Event');
 
     Analytics.track('Application Backgrounded', <String, dynamic>{
-      'url': 'app://deeplink.fanhero/post/5b450fd6504f3fec66bb99bc?src=push'
+      'url': 'app://deeplink.myapp/post/5b450fd6504f3fec66bb99bc?src=push'
     });
 
     Analytics.flush();
