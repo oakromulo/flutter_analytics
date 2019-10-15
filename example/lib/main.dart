@@ -1,13 +1,11 @@
 // ignore_for_file: unawaited_futures, public_member_api_docs
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_analytics/flutter_analytics.dart';
 
 Future<void> example() async {
   // initial setup to run once on application lifecycle, no need to be awaited
   Analytics.setup(
-    configUrl: await configUrl(),
     onFlush: (batch) => batch.forEach(print),
     orgId: '775b5322-287b-4ca7-a750-86e5e848d226',
   );
@@ -57,7 +55,5 @@ class MyApp extends StatelessWidget {
     );
   } // build
 }
-
-Future<String> configUrl() => rootBundle.loadString('.config_url');
 
 void main() => runApp(MyApp());

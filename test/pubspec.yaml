@@ -18,6 +18,4 @@ dev_dependencies:
   test: any
 
 flutter:
-  assets:
-    - .config_url
   uses-material-design: true

@@ -25,7 +25,6 @@ import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
 
 // initial setup to run once on application lifecycle, no need to be awaited
 Analytics.setup(
-  configUrl: 'https://remote.config',
   destinations: ['https://remote.server'],
   onFlush: (batch) => batch.forEach(print),
   orgId: '775b5322-287b-4ca7-a750-86e5e848d226',

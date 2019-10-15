@@ -3,12 +3,10 @@
 /// @nodoc
 library test_app;
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:flutter_analytics/flutter_analytics.dart';
 import 'package:flutter_analytics/version_control.dart';
@@ -33,10 +31,8 @@ class _MyAppState extends State<_MyApp> {
 
   bool localEnabled = true, remoteEnabled = true, tputEnabled = true;
 
-  final Future<String> configUrl = rootBundle.loadString('.config_url');
-
   Future<String> localTest() async {
-    Analytics.setup(orgId: _org, configUrl: await configUrl);
+    Analytics.setup(orgId: _org);
 
     Analytics.flush((_) async => true);
 
@@ -47,8 +43,6 @@ class _MyAppState extends State<_MyApp> {
 
     await Analytics.flush((batch) async {
       assert(batch.length == 4);
-
-      // batchDebug(batch);
 
       for (int i = 0; i < 4; ++i) {
         final evt = batch[i];
@@ -105,7 +99,7 @@ class _MyAppState extends State<_MyApp> {
 
     final onFlush = (List<Map<String, dynamic>> batch) => batches.add(batch);
 
-    Analytics.setup(configUrl: await configUrl, onFlush: onFlush, orgId: _org);
+    Analytics.setup(onFlush: onFlush, orgId: _org);
 
     Analytics.flush();
 
@@ -147,7 +141,7 @@ class _MyAppState extends State<_MyApp> {
 
     final onFlush = (List<Map<String, dynamic>> b) => _evtCnt += b.length;
 
-    Analytics.setup(configUrl: await configUrl, onFlush: onFlush, orgId: _org);
+    Analytics.setup(onFlush: onFlush, orgId: _org);
 
     for (;;) {
       Analytics.track('Load Test Event');
@@ -257,9 +251,6 @@ class _MyAppState extends State<_MyApp> {
       assert(context['os']['name'] == 'iOS');
     }
 
-    // false negative when offline or under slow connections
-    assert(context['ip'] != '127.0.1.1');
-
     assert(context['groupId'] == 'testGroupId');
 
     assert(context['library']['name'] == sdkName);
@@ -278,11 +269,5 @@ class _MyAppState extends State<_MyApp> {
     assert(props['sdk']['setupId'].toString().length == 36);
     assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) >= -12);
     assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) <= 12);
-  }
-
-  void batchDebug(List<Map<String, dynamic>> batch) {
-    for (final match in RegExp('.{1,800}').allMatches(json.encode(batch))) {
-      debugPrint(match.group(0));
-    }
   }
 }
