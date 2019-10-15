@@ -8,15 +8,15 @@ issue_tracker: https://github.com/oakromulo/flutter_analytics/issues
 
 environment:
   flutter: ^1.5.4-hotfix.2
-  sdk: ">=2.3.0-dev.0.5 <3.0.0"
+  sdk: '>=2.2.2 <3.0.0'
 
 dependencies:
-  connectivity: ^0.4.4
-  device_info: ^0.4.0+2
+  connectivity: ^0.4.4+1
+  device_info: ^0.4.0+3
   devicelocale: ^0.2.0
   flutter:
     sdk: flutter
-  flutter_persistent_queue: ^3.0.0+1
+  flutter_persistent_queue: ^5.0.0
   flutter_udid: ^1.0.0
   http: ^0.12.0+2
   localstorage: ^2.0.0
