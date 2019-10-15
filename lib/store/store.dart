@@ -16,7 +16,7 @@ import '../util/util.dart' show EventBuffer, debugError, hexStringToBase64;
 /// @nodoc
 class Store {
   /// @nodoc
-  factory Store() => _cache ??= Store._internal();
+  factory Store() => _store;
 
   Store._internal() {
     _init();
@@ -25,7 +25,7 @@ class Store {
     _StoreEvent(_StoreEventType.SETUP).future(_buffer).catchError(debugError);
   }
 
-  static Store _cache;
+  static final Store _store = Store._internal();
 
   Config _config;
   LocalStorage _storage;
