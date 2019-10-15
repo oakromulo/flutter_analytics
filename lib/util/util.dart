@@ -17,13 +17,13 @@ String dartEnv() =>
     bool.fromEnvironment('dart.vm.product') ? 'PRODUCTION' : 'DEVELOPMENT';
 
 /// @nodoc
-void debugError(dynamic e, [dynamic trace]) => _debug(() {
-      debugPrint('AnalyticsError:\n$e${trace == null ? '' : '\n$trace'}');
+void debugError(dynamic e, [dynamic s]) => _debug(() {
+      debugPrint('flutter_analytics ➲ ERROR:\n$e${s == null ? '' : '\n$s'}');
     });
 
 /// @nodoc
 void debugLog(dynamic msg) => _debug(() {
-      debugPrint('AnalyticsInfo: ${msg.toString()} @ ${_isoNow()}');
+      debugPrint('flutter_analytics ➲ ${msg.toString()} @ ${_isoNow()}');
     });
 
 /// @nodoc
