@@ -34,10 +34,8 @@ class _MyAppState extends State<_MyApp> {
   bool localEnabled = true, remoteEnabled = true, tputEnabled = true;
 
   Future<String> localTest() async {
-    Analytics.setup(
-        destinations: ['http://localhost:3000/analytics'], orgId: _org);
-
-    Analytics.flush((_) async => true);
+    Analytics.setup(destinations: ['http://localhost:3000/test'], orgId: _org);
+    await Analytics.flush((_) async => true);
 
     Analytics.group('testGroupId', {'numTrait': 7, 'txtTrait': 'tGroup'});
     Analytics.identify('myUserId');
@@ -93,17 +91,19 @@ class _MyAppState extends State<_MyApp> {
       return true;
     });
 
+    await Analytics.flush((_) async => true);
     return 'local test completed successfully';
   }
 
   Future<String> remoteTest() async {
     final batches = <List<Map<String, dynamic>>>[];
 
-    final onFlush = (List<Map<String, dynamic>> batch) => batches.add(batch);
+    final onFlush = (List<Map<String, dynamic>> batch) {
+      batches.add(batch);
+    };
 
-    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: _org);
-
-    Analytics.flush();
+    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: 'remote');
+    await Analytics.flush((_) async => true);
 
     Analytics.group('myGroupIdGoesHere');
 
@@ -126,13 +126,14 @@ class _MyAppState extends State<_MyApp> {
 
     Analytics.flush();
 
-    while (batches.length < 2) {
+    while (batches.isEmpty) {
       await Future<void>.delayed(Duration(seconds: 1));
     }
 
     // may implicate in false negatives for edge cases
     assert(batches.last.length >= 5);
 
+    await Analytics.flush((_) async => true);
     return 'remote test completed successfully';
   }
 
@@ -140,20 +141,26 @@ class _MyAppState extends State<_MyApp> {
     final t0 = DateTime.now();
 
     int _evtCnt = 0;
+    const totalTracks = 1000;
 
-    final onFlush = (List<Map<String, dynamic>> b) => _evtCnt += b.length;
+    final onFlush = (List<Map<String, dynamic>> b) {
+      _evtCnt += b.length;
+    };
 
-    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: _org);
+    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: 'tput');
+    await Analytics.flush((_) async => true);
 
-    for (;;) {
+    int i = totalTracks;
+    while (--i >= 0) {
       Analytics.track('Load Test Event');
-
-      if (_evtCnt >= 10000) {
-        break;
-      }
-
-      await Future.delayed(Duration(microseconds: 100));
     }
+
+    while (_evtCnt < totalTracks - 100) {
+      print('event count: $_evtCnt');
+      await Future.delayed(Duration(seconds: 1));
+    }
+
+    await Analytics.flush();
 
     final int eventCount = _evtCnt;
     final t1 = DateTime.now();
@@ -163,6 +170,7 @@ class _MyAppState extends State<_MyApp> {
 
     assert(eventTput >= 20.0);
 
+    await Analytics.flush((_) async => true);
     return 'throughput test completed successfully';
   }
 
