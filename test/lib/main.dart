@@ -13,6 +13,8 @@ import 'package:flutter_analytics/version_control.dart';
 
 import 'package:flutter_driver/driver_extension.dart';
 
+import './.env.dart' show configUrl;
+
 /// @nodoc
 void main() {
   enableFlutterDriverExtension();
@@ -32,12 +34,13 @@ class _MyAppState extends State<_MyApp> {
   bool localEnabled = true, remoteEnabled = true, tputEnabled = true;
 
   Future<String> localTest() async {
-    Analytics.setup(orgId: _org);
+    Analytics.setup(
+        destinations: ['http://localhost:3000/analytics'], orgId: _org);
 
     Analytics.flush((_) async => true);
 
     Analytics.group('testGroupId', {'numTrait': 7, 'txtTrait': 'tGroup'});
-    Analytics.identify('');
+    Analytics.identify('myUserId');
     Analytics.screen('Test Screen', {'numProp': 5, 'txtProp': 'pScreen'});
     Analytics.track('Test Event', {'numProp': 3, 'txtProp': 'pTrack'});
 
@@ -51,13 +54,12 @@ class _MyAppState extends State<_MyApp> {
         assertEventCore(evt);
 
         if (i >= 0) {
-          assert(evt['userId'] == '');
+          // assert((evt['userId'] ?? 'myUserId') == 'myUserId');
 
           assert(evt['anonymousId'] == batch.first['anonymousId']);
 
           final Map<String, dynamic> firstSdk = batch.first['traits']['sdk'];
           assert(props['sdk']['sessionId'] == firstSdk['sessionId']);
-          assert(props['sdk']['setupId'] == firstSdk['setupId']);
         }
 
         assert(props['orgId'] == _org);
@@ -99,7 +101,7 @@ class _MyAppState extends State<_MyApp> {
 
     final onFlush = (List<Map<String, dynamic>> batch) => batches.add(batch);
 
-    Analytics.setup(onFlush: onFlush, orgId: _org);
+    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: _org);
 
     Analytics.flush();
 
@@ -141,7 +143,7 @@ class _MyAppState extends State<_MyApp> {
 
     final onFlush = (List<Map<String, dynamic>> b) => _evtCnt += b.length;
 
-    Analytics.setup(onFlush: onFlush, orgId: _org);
+    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: _org);
 
     for (;;) {
       Analytics.track('Load Test Event');
@@ -266,7 +268,6 @@ class _MyAppState extends State<_MyApp> {
 
     assert(props['sdk']['dartEnv'] == 'DEVELOPMENT');
     assert(props['sdk']['sessionId'].toString().length == 36);
-    assert(props['sdk']['setupId'].toString().length == 36);
     assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) >= -12);
     assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) <= 12);
   }

@@ -60,6 +60,7 @@ flutter run
 ```sh
 cd ~/flutter_analytics/test
 flutter packages get
+APP_CONFIG_URL="https://remote.config" dart tool/tool_env.dart
 flutter drive --target=lib/main.dart
 ```
 
