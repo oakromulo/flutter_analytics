@@ -1,11 +1,11 @@
 // ignore_for_file: unawaited_futures, public_member_api_docs
-
 import 'package:flutter/material.dart';
 import 'package:flutter_analytics/flutter_analytics.dart';
 
 Future<void> example() async {
   // initial setup to run once on application lifecycle, no need to be awaited
   Analytics.setup(
+    destinations: ['http://localhost:3000/analytics'],
     onFlush: (batch) => batch.forEach(print),
     orgId: '775b5322-287b-4ca7-a750-86e5e848d226',
   );
@@ -23,7 +23,7 @@ Future<void> example() async {
   Analytics.track('Any Event', {'numProp': 3, 'txtProp': 'pTrack'});
 
   // manually force the SDK to dispatch locally buffered events
-  Analytics.flush();
+  Analytics.flush((_) async => true);
 }
 
 Future<String> runExample() async {
