@@ -65,10 +65,6 @@ class Store {
   }
 
   /// @nodoc
-  Future<String> get setupId => _get('setupId');
-  set setupId(Future<String> setupId) => _set('setupId', setupId);
-
-  /// @nodoc
   String get userId => _userId;
 
   set userId(String userId) {

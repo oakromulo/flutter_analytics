@@ -71,4 +71,13 @@ class Config {
 
     _remoteConfig = json.decode((await get(url).timeout(timeout)).body);
   }
+
+  @override
+  String toString() => '''config:
+  destinations: ${(destinations ?? []).length}
+  flush every: $flushAtLength events
+  max capacity before data loss: $maxQueueLength events
+  max local TTL: ${flushAtDuration.inSeconds} seconds
+  max session TTL: ${sessionTimeout.inSeconds} seconds
+  request timeout: ${defaultTimeout.inSeconds} seconds\n   ''';
 }

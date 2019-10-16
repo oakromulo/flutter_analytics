@@ -55,7 +55,6 @@ abstract class Segment {
       'sdk': <String, dynamic>{
         'dartEnv': _dartEnv,
         'sessionId': await _store.sessionId,
-        'setupId': await _store.setupId,
         'tzOffsetHours': DateTime.now().timeZoneOffset.inHours
       }
     };

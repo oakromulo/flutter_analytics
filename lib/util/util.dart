@@ -2,7 +2,7 @@
 library util;
 
 import 'dart:async' show StreamController, StreamSubscription;
-import 'dart:convert' show base64, base64Url, JsonUtf8Encoder;
+import 'dart:convert' show base64, base64Url, JsonUtf8Encoder, json;
 import 'dart:io' show gzip;
 import 'dart:typed_data' show Uint8List;
 
@@ -18,13 +18,17 @@ String dartEnv() =>
 
 /// @nodoc
 void debugError(dynamic e, [dynamic s]) => _debug(() {
-      debugPrint('flutter_analytics ➲ ERROR:\n$e${s == null ? '' : '\n$s'}');
+      debugPrint('flutter_analytics ➲ ERROR:\n$e${s == null ? '' : '\n$s'}\n');
     });
 
 /// @nodoc
 void debugLog(dynamic msg) => _debug(() {
-      debugPrint('flutter_analytics ➲ ${msg.toString()} @ ${_isoNow()}');
+      debugPrint('flutter_analytics ➲ ${msg.toString()} @ ${_isoNow()}\n');
     });
+
+/// @nodoc
+List<dynamic> dedupLists(List<dynamic> a, List<dynamic> b) =>
+    <String>{...a ?? [], ...b ?? []}.toList();
 
 /// @nodoc
 void fixEncoding(Map<String, dynamic> payload) {
@@ -43,6 +47,17 @@ String hexStringToBase64(String hexString) {
   }
 
   return base64Url.encode(bytes);
+}
+
+/// @nodoc
+Map<String, dynamic> toJson(dynamic input) {
+  try {
+    return json.decode(json.encode(input ?? {})) ?? {};
+  } catch (e) {
+    debugLog('a payload could not be json encoded:\n$input');
+
+    return {};
+  }
 }
 
 void _debug(void Function() exec) {
