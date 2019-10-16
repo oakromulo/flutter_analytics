@@ -1,3 +1,11 @@
+## [v1.0.0](https://github.com/oakromulo/flutter_analytics/tree/v1.0.0) - 2019-10-16
+
+- Full analytics refactor for improved codebase clarity
+- Leverages the latest [flutter_persistent_queue](https://pub.dev/packages/flutter_persistent_queue)
+  implementation under the hood
+- Improved settings and localstorage caching
+- Better debugging messages on debug targets and saner error handling throughout
+
 ## [v0.4.1](https://github.com/oakromulo/flutter_analytics/tree/v0.4.1) - 2019-10-03
 
 - Improve persistency of `groupId` and `userId`
