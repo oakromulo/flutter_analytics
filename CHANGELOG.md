@@ -1,8 +1,14 @@
+## [v1.1.0](https://github.com/oakromulo/flutter_analytics/tree/v1.1.0) - 2019-10-17
+
+- Non-persistent payload pointers added for chronological debugging purposes
+- README updated with examples for server-side analytics consumption and OTA config
+
 ## [v1.0.0](https://github.com/oakromulo/flutter_analytics/tree/v1.0.0) - 2019-10-16
 
 - Full analytics refactor for improved codebase clarity
 - Leverages the latest [flutter_persistent_queue](https://pub.dev/packages/flutter_persistent_queue)
   implementation under the hood
+- JSON-encodable `<dynamic>` payloads now supported
 - Improved settings and localstorage caching
 - Better debugging messages on debug targets and saner error handling throughout
 
