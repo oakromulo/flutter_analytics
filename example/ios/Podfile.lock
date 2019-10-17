@@ -49,12 +49,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   connectivity: 6e94255659cc86dcbef1d452ad3e0491bb1b3e75
-  device_info: 3ebad48f726348f69abd802f3334a8d1ed795fbd
+  device_info: cbf09d2ec12aa7110e0b09fabe54b5bd6c8efe74
   devicelocale: feebbe5e7a30adb8c4f83185de1b50ff19b44f00
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_udid: e698e58df29cd728c7e3f061e13a8e0d93376f51
-  package_info: 78cabb3c322943c55d39676f4a5bfc748c01d055
-  path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
+  package_info: 48b108e75b8802c2d5e126f208ef540561c98aef
+  path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
 
