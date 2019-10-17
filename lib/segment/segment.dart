@@ -48,21 +48,31 @@ abstract class Segment {
   static final Store _store = Store();
   static final String _dartEnv = dartEnv();
 
+  static String _previousMessageId;
+  static String _nextMessageId;
+
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async {
+    final messageId = _nextMessageId ?? Uuid().v4();
+    _nextMessageId = Uuid().v4();
+
     final sdkProps = <String, dynamic>{
       'orgId': await _store.orgId,
       'sdk': <String, dynamic>{
         'dartEnv': _dartEnv,
+        'nextMessageId': _nextMessageId,
+        'previousMessageId': _previousMessageId ?? messageId,
         'sessionId': await _store.sessionId,
         'tzOffsetHours': DateTime.now().timeZoneOffset.inHours
       }
     };
 
+    _previousMessageId = messageId;
+
     final payload = <String, dynamic>{
       'anonymousId': await _store.anonymousId,
       'context': {...await Context().toMap(), 'groupId': groupId},
-      'messageId': Uuid().v4(),
+      'messageId': messageId,
       'properties': (properties ?? {})..addAll(sdkProps),
       'timestamp': DateTime.now().toUtc().toIso8601String(),
       'traits': (traits ?? {})
