@@ -9,7 +9,7 @@ Add dependency to `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  flutter_analytics: ^1.1.0
+  flutter_analytics: ^1.1.1
 ```
 
 Run in your terminal:
@@ -90,6 +90,7 @@ def upload(event):
 ## OTA remote configuration
 
 A remote config file can be supplied like this:
+
 ```dart
 Analytics.setup(
   configUrl: 'https://gist.githubusercontent.com/oakromulo/7678b2b187a24e47c0ba93085575477d/raw/e72767273e4e6a73d14377f650be63d66033a6e3/config.json'

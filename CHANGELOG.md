@@ -1,3 +1,7 @@
+## [v1.1.1](https://github.com/oakromulo/flutter_analytics/tree/v1.1.1) - 2019-10-18
+
+- Dependencies and environment constraints updated
+
 ## [v1.1.0](https://github.com/oakromulo/flutter_analytics/tree/v1.1.0) - 2019-10-17
 
 - Non-persistent payload pointers added for chronological debugging purposes
