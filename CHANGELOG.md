@@ -1,3 +1,7 @@
+## [v1.1.1+1](https://github.com/oakromulo/flutter_analytics/tree/v1.1.1+1) - 2019-10-18
+
+- update connectivity dependency
+
 ## [v1.1.1](https://github.com/oakromulo/flutter_analytics/tree/v1.1.1) - 2019-10-18
 
 - Dependencies and environment constraints updated
