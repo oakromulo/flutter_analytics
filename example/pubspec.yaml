@@ -3,8 +3,8 @@ description: an example
 version: 0.6.7+5
 
 environment:
-  flutter: ^1.5.4-hotfix.2
-  sdk: '>=2.2.2 <3.0.0'
+  flutter: '>1.7.8 <2.0.0'
+  sdk: '>=2.3.0 <3.0.0'
 
 dependencies:
   flutter:
