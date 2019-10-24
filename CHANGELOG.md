@@ -1,3 +1,8 @@
+## [v1.2.0](https://github.com/oakromulo/flutter_analytics/tree/v1.2.0) - 2019-10-24
+
+- updated [localstorage](https://pub.dev/packages/localstorage) and
+  [flutter_persistent_queue](https://pub.dev/packages/flutter_persistent_queue)
+
 ## [v1.1.1+1](https://github.com/oakromulo/flutter_analytics/tree/v1.1.1+1) - 2019-10-18
 
 - update connectivity dependency
