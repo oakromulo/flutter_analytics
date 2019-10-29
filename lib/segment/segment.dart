@@ -15,8 +15,8 @@ export './segment_track.dart' show Track;
 /// @nodoc
 abstract class Segment {
   /// @nodoc
-  Segment(this.type,
-      {this.groupId, this.properties, this.traits, this.userId}) {
+  Segment(this.type, {this.groupId, this.properties, this.traits, this.userId})
+      : _timestamp = DateTime.now().toUtc().toIso8601String() {
     if (groupId != null) {
       _store.groupId = groupId;
     } else {
@@ -51,6 +51,8 @@ abstract class Segment {
   static String _previousMessageId;
   static String _nextMessageId;
 
+  final String _timestamp;
+
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async {
     final messageId = _nextMessageId ?? Uuid().v4();
@@ -74,7 +76,7 @@ abstract class Segment {
       'context': {...await Context().toMap(), 'groupId': groupId},
       'messageId': messageId,
       'properties': (properties ?? {})..addAll(sdkProps),
-      'timestamp': DateTime.now().toUtc().toIso8601String(),
+      'timestamp': _timestamp,
       'traits': (traits ?? {})
         ..addAll(sdkProps)
         ..remove('id'),
