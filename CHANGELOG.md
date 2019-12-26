@@ -1,3 +1,7 @@
+## [v1.2.1](https://github.com/oakromulo/flutter_analytics/tree/v1.2.1) - 2019-12-26
+
+- Dependencies updated
+
 ## [v1.2.0](https://github.com/oakromulo/flutter_analytics/tree/v1.2.0) - 2019-10-24
 
 - updated [localstorage](https://pub.dev/packages/localstorage) and

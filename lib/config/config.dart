@@ -19,7 +19,8 @@ class Config {
   Map<String, dynamic> _remoteConfig;
 
   /// SDK-wide default maximum duration to await for HTTPS requests
-  Duration get defaultTimeout => Duration(seconds: _get('defaultTimeoutSecs'));
+  Duration get defaultTimeout =>
+      Duration(seconds: _get('defaultTimeoutSecs') ?? 60);
 
   /// Array of POST-ready [HTTPS] URIs that should have analytics event batches
   /// forwarded to them. Each one of them gets its own segregated persistent
@@ -40,18 +41,19 @@ class Config {
   /// p.s. this number is not hardly enforced - the actual number of events
   /// flushed manually triggered flushes, previously failed flush attempts
   /// and [flushAtDuration] attempts all affect the actual [flushAtLength]
-  int get flushAtLength => _get('flushAtLength') + 0;
+  int get flushAtLength => _get('flushAtLength') ?? 100;
 
   /// Target max. [Duration] to store an event locally from trigger to flush.
-  Duration get flushAtDuration => Duration(seconds: _get('flushAtSecs'));
+  Duration get flushAtDuration => Duration(seconds: _get('flushAtSecs') ?? 300);
 
   /// Hard max. # of events to be stored locally for a given _destination_
   ///
   /// p.s. data loss occurs when [maxQueueLength] is reached
-  int get maxQueueLength => _get('maxQueueLength') + 0;
+  int get maxQueueLength => _get('maxQueueLength') ?? 10000;
 
   /// Maximum session [Duration]
-  Duration get sessionTimeout => Duration(seconds: _get('sessionTimeoutSecs'));
+  Duration get sessionTimeout =>
+      Duration(seconds: _get('sessionTimeoutSecs') ?? 1800);
 
   dynamic _get(String key) {
     try {
