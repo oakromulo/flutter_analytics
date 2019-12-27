@@ -1,3 +1,7 @@
+## [v1.3.1+1](https://github.com/oakromulo/flutter_analytics/tree/v1.3.1) - 2019-12-27
+
+- Stricter flutter, dart and iOS versioning in order to minimize false flag issues
+
 ## [v1.2.1](https://github.com/oakromulo/flutter_analytics/tree/v1.2.1) - 2019-12-26
 
 - Dependencies updated
