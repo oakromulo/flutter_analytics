@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart' show Uuid;
 
 import '../context/context.dart' show Context;
 import '../store/store.dart' show Store;
-import '../util/util.dart' show dartEnv, fixEncoding;
+import '../util/util.dart' show dartEnv;
 
 export './segment_group.dart' show Group;
 export './segment_identify.dart' show Identify;
@@ -83,8 +83,6 @@ abstract class Segment {
       'type': type.toString().split('.').last.toLowerCase(),
       'userId': userId
     };
-
-    fixEncoding(payload);
 
     return payload;
   }

@@ -1,3 +1,10 @@
+## [v2.0.1](https://github.com/oakromulo/flutter_analytics/tree/v2.0.1) - 2019-12-30
+
+- Exceptional DateTime treatment introduced on
+  [v0.4.0](https://github.com/oakromulo/flutter_analytics/tree/v0.4.1) removed due to a flutter bug
+  that could bypass try/catch blocks and cause an application to crash when attempting to json
+  encode datetime in release mode
+
 ## [v1.3.1+1](https://github.com/oakromulo/flutter_analytics/tree/v1.3.1) - 2019-12-27
 
 - Stricter flutter, dart and iOS versioning in order to minimize false flag issues
