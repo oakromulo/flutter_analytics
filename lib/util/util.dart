@@ -31,11 +31,6 @@ List<dynamic> dedupLists(List<dynamic> a, List<dynamic> b) =>
     <String>{...a ?? [], ...b ?? []}.toList();
 
 /// @nodoc
-void fixEncoding(Map<String, dynamic> payload) {
-  _fixDateTimeEncoding(payload ?? {});
-}
-
-/// @nodoc
 String hexStringToBase64(String hexString) {
   final s = hexString.replaceAll('-', '');
 
@@ -64,28 +59,6 @@ void _debug(void Function() exec) {
   if (!bool.fromEnvironment('dart.vm.product')) {
     exec();
   }
-}
-
-// FIXME: a very naïve and inneficient forceful encoding hack here \/
-void _fixDateTimeEncoding(Map<String, dynamic> payload) {
-  payload.forEach((key, value) {
-    try {
-      try {
-        if (value.keys.length > -1) {
-          return _fixDateTimeEncoding(value);
-        }
-      } catch (_) {}
-      try {
-        if (value.toUtc() != null) {
-          try {
-            payload[key] = value.toUtc().toIso8601String();
-          } catch (_) {
-            payload[key] = null;
-          }
-        }
-      } catch (_) {}
-    } catch (_) {}
-  });
 }
 
 String _isoNow() {
