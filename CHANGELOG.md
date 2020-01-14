@@ -1,3 +1,7 @@
+## [v3.0.1](https://github.com/oakromulo/flutter_analytics/tree/v3.0.1) - 2020-01-14
+
+- JSON-encodable `<dynamic>` payloads removed due in order to minimize release-time errors
+
 ## [v2.0.1](https://github.com/oakromulo/flutter_analytics/tree/v2.0.1) - 2019-12-30
 
 - Exceptional DateTime treatment introduced on

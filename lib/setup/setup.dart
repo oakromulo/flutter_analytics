@@ -1,6 +1,7 @@
 library analytics_setup;
 
-import 'dart:convert' show AsciiCodec, json;
+import 'dart:convert' show AsciiCodec, base64, JsonUtf8Encoder;
+import 'dart:io' show gzip;
 
 import 'package:flutter_persistent_queue/flutter_persistent_queue.dart'
     show PersistentQueue;
@@ -9,8 +10,7 @@ import 'package:http/http.dart' show post, Response;
 
 import '../config/config.dart' show Config;
 import '../store/store.dart' show Store;
-import '../util/util.dart'
-    show base64GzipList, debugError, debugLog, dedupLists, toJson;
+import '../util/util.dart' show debugError, debugLog;
 
 import './setup_params.dart' show SetupParams, OnBatchFlush;
 
@@ -23,26 +23,46 @@ class Setup {
     _ready = _setup(params);
   }
 
-  Future<bool> _ready;
   List<String> _destinations;
+  Future<bool> _ready;
   List<PersistentQueue> _queues;
-
-  /// @nodoc
-  Future<bool> get ready => _ready;
 
   /// @nodoc
   List<String> get destinations => _destinations;
 
   /// @nodoc
+  Future<bool> get ready => _ready;
+
+  /// @nodoc
   List<PersistentQueue> get queues => _queues;
 
-  Future<void> _downloadConfig(Config config, String url) async {
+  Future<bool> _setup(SetupParams params) async {
+    await Setup._downloadConfig(params.configUrl);
+    debugLog(Config());
+
+    _destinations = Setup._dedup(Config().destinations, params.destinations);
+    Setup._validateDestinations(_destinations);
+
+    await Setup._resetOrgId(params.orgId);
+
+    _queues = await Setup._initQueues(_destinations, params.onFlush);
+
+    return true;
+  }
+
+  static String _base64GzipList(List<Map<String, dynamic>> list) =>
+      base64.encode(gzip.encode(JsonUtf8Encoder().convert(list)));
+
+  static List<String> _dedup(List<String> a, List<String> b) =>
+      <String>{...a ?? [], ...b ?? []}.toList();
+
+  static Future<void> _downloadConfig(String url) async {
     try {
       if (url == null || url.isEmpty) {
         return;
       }
 
-      await config.download(url);
+      await Config().download(url);
 
       debugLog('remote config fetched successfully');
     } catch (e, s) {
@@ -51,10 +71,10 @@ class Setup {
     }
   }
 
-  String _encode(List<Map<String, dynamic>> batch) =>
-      json.encode({'batch': base64GzipList(batch)});
+  static String _encode(List<Map<String, dynamic>> batch) =>
+      '{"batch":"${Setup._base64GzipList(batch)}"}';
 
-  void _fillSentAt(List<Map<String, dynamic>> batch) {
+  static void _fillSentAt(List<Map<String, dynamic>> batch) {
     final sentAt = DateTime.now().toUtc().toIso8601String();
 
     for (var event in batch) {
@@ -62,13 +82,13 @@ class Setup {
     }
   }
 
-  Future<PersistentQueue> _initQueue(
-      Config config, String url, OnBatchFlush onBatchFlush) async {
+  static Future<PersistentQueue> _initQueue(
+      String url, OnBatchFlush onBatchFlush) async {
     final pq = PersistentQueue(url.hashCode.toString(),
-        onFlush: _onFlush(url, onBatchFlush),
-        flushAt: config.flushAtLength,
-        flushTimeout: config.flushAtDuration,
-        maxLength: config.maxQueueLength);
+        onFlush: Setup._onFlush(url, onBatchFlush),
+        flushAt: Config().flushAtLength,
+        flushTimeout: Config().flushAtDuration,
+        maxLength: Config().maxQueueLength);
 
     await pq.ready;
 
@@ -77,25 +97,25 @@ class Setup {
     return pq;
   }
 
-  Future<List<PersistentQueue>> _initQueues(Config config,
+  static Future<List<PersistentQueue>> _initQueues(
       List<String> destinations, OnBatchFlush onBatchFlush) async {
     final queues = <PersistentQueue>[];
 
     for (final url in destinations) {
-      queues.add(await _initQueue(config, url, onBatchFlush));
+      queues.add(await Setup._initQueue(url, onBatchFlush));
     }
 
     return queues;
   }
 
-  OnFlush _onFlush(String url, OnBatchFlush onBatchFlush) =>
+  static OnFlush _onFlush(String url, OnBatchFlush onBatchFlush) =>
       (List<dynamic> payload) async {
         try {
-          final batch = payload.map(toJson).toList();
+          final batch = payload.cast<Map<String, dynamic>>();
 
           if (batch.isNotEmpty) {
-            _fillSentAt(batch);
-            _validatePost(await _post(url, _encode(batch)));
+            Setup._fillSentAt(batch);
+            Setup._validatePost(await Setup._post(url, Setup._encode(batch)));
           }
 
           try {
@@ -115,39 +135,22 @@ class Setup {
         }
       };
 
-  Future<Response> _post(String url, String body,
+  static Future<Response> _post(String url, String body,
           [Duration timeout = const Duration(seconds: 60)]) =>
       post(url, body: body, encoding: AsciiCodec()).timeout(timeout);
 
-  Future<void> _resetOrgId(Store store, String orgId) async {
-    store.orgId = Future.value(orgId);
-    await store.orgId;
+  static Future<void> _resetOrgId(String orgId) async {
+    Store().orgId = Future.value(orgId);
+    await Store().orgId;
   }
 
-  Future<bool> _setup(SetupParams params) async {
-    final config = Config();
-    final store = Store();
-
-    await _downloadConfig(config, params.configUrl);
-    debugLog(config);
-
-    _destinations = dedupLists(config.destinations, params.destinations);
-    _validateDestinations(_destinations);
-
-    await _resetOrgId(store, params.orgId);
-
-    _queues = await _initQueues(config, _destinations, params.onFlush);
-
-    return true;
-  }
-
-  void _validateDestinations(List<String> destinations) {
+  static void _validateDestinations(List<String> destinations) {
     if (destinations.isEmpty) {
       throw Exception('no destinations have been provided');
     }
   }
 
-  void _validatePost(Response res) {
+  static void _validatePost(Response res) {
     if (!res.body.contains('success')) {
       throw Exception('InvalidServerResponse');
     }

@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart'
 import 'package:uuid/uuid.dart' show Uuid;
 
 import '../config/config.dart' show Config;
-import '../util/util.dart' show EventBuffer, debugError, hexStringToBase64;
+import '../util/util.dart' show EventBuffer, debugError;
 
 /// @nodoc
 class Store {
@@ -174,7 +174,7 @@ class Store {
   }
 
   Future<String> _resetAnonymousId() async {
-    final id = hexStringToBase64(await _udid());
+    final id = await _udid();
 
     await _set('anonymousId', Future.value(id));
 

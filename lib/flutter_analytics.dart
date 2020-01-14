@@ -14,7 +14,7 @@ import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 import './event/event.dart' show Event, EventType;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
-import './util/util.dart' show debugError, debugLog, EventBuffer, toJson;
+import './util/util.dart' show debugError, debugLog, EventBuffer;
 
 /// Static singleton class for single-ended app-wide datalogging.
 class Analytics {
@@ -77,47 +77,20 @@ class Analytics {
       Event(EventType.FLUSH, flush: debug).future(_buffer);
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
-  ///
-  /// Optional group [traits] may also be provided and they're particularly
-  /// useful for event segmentation by industry verticals and the like. For
-  /// example, a `createdAt` group trait helps us to _implictly_ distinguish
-  /// between early-bird user events (more valuable) than the ones triggered
-  /// by late-comers.
-  static Future<void> group(String groupId, [dynamic traits]) =>
-      _log(Group(groupId, toJson(traits)));
+  static Future<void> group(String groupId, [Map<String, dynamic> traits]) =>
+      _log(Group(groupId, traits));
 
   /// Identifies registered users. A nullable [userId] must be provided.
-  ///
-  /// Optional [traits] may also be provided and they're particularly useful
-  /// for *ANONYMOUS* userbase segmentation. Personally identifiable user
-  /// information *SHOULD NEVER EVER BE PROVIDED HERE UNDER ANY CIRCUNSTANCES*.
-  /// Segmentable user metadata such as birth dates, registration dates and
-  /// gender are still OK and acceptable/desirable. Anything else, including
-  /// but not limited to avatar photos, emails and usernames should not go to
-  /// transactional data.
-  static Future<void> identify(String userId, [dynamic traits]) =>
-      _log(Identify(userId, toJson(traits)));
+  static Future<void> identify(String userId, [Map<String, dynamic> traits]) =>
+      _log(Identify(userId, traits));
 
-  /// Logs the current screen a user just jumped into on a mobile app.
-  ///
-  /// The [screen] [name] must be provided. Optional [properties] should also
-  /// accompany it but they *MUST* be `Map<String, dynamic>` JSON-encodable,
-  /// statically typed and consistent across at least the same minor mobile app
-  /// release. For example, a `Login Screen` call must always have the same
-  /// payload (even with lots of blank/null fields) on the same mobile app
-  /// version.
-  static Future<void> screen(String name, [dynamic properties]) =>
-      _log(Screen(name, toJson(properties)));
+  /// Logs the current screen [name].
+  static Future<void> screen(String name, [Map<String, dynamic> properties]) =>
+      _log(Screen(name, properties));
 
-  /// Logs *any* meaningful mobile app [event] and its respective [properties].
-  ///
-  /// [properties] *MUST* be `Map<String, dynamic>` JSON-encodable, statically
-  /// typed and consistent across at least the same minor mobile app
-  /// release. For example, an `Application Backgrounded` call must always have
-  /// the same payload, e.g. `{'url': 'app://deeplink.com/uri'} - new fields
-  /// implicate on at least a *minor* mobile app version bump.
-  static Future<void> track(String event, [dynamic properties]) =>
-      _log(Track(event, toJson(properties)));
+  /// Logs an [event] and its respective [properties].
+  static Future<void> track(String event, [Map<String, dynamic> properties]) =>
+      _log(Track(event, properties));
 
   static Future<void> _onEvent(Event event) {
     switch (event.type) {

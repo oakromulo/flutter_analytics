@@ -244,7 +244,7 @@ class _MyAppState extends State<_MyApp> {
   }
 
   void assertEventCore(Map<String, dynamic> event) {
-    assert(event['anonymousId'].toString().length == 44);
+    assert(event['anonymousId'].toString().length == 64);
 
     final Map<String, dynamic> context = event['context'];
 
