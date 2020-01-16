@@ -1,3 +1,8 @@
+## [v4.0.1](https://github.com/oakromulo/flutter_analytics/tree/v4.0.1) - 2020-01-16
+
+- New JSON parser now safely handles `<dynamic>` payloads containing enums, datetimes, custom
+  objects, maps and arrays.
+
 ## [v3.0.1](https://github.com/oakromulo/flutter_analytics/tree/v3.0.1) - 2020-01-14
 
 - JSON-encodable `<dynamic>` payloads removed due in order to minimize release-time errors

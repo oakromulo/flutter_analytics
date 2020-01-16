@@ -1,7 +1,6 @@
 library analytics_setup;
 
-import 'dart:convert' show AsciiCodec, base64, JsonUtf8Encoder;
-import 'dart:io' show gzip;
+import 'dart:convert' show AsciiCodec;
 
 import 'package:flutter_persistent_queue/flutter_persistent_queue.dart'
     show PersistentQueue;
@@ -9,6 +8,7 @@ import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 import 'package:http/http.dart' show post, Response;
 
 import '../config/config.dart' show Config;
+import '../encoder/encoder.dart' show Encoder;
 import '../store/store.dart' show Store;
 import '../util/util.dart' show debugError, debugLog;
 
@@ -50,9 +50,6 @@ class Setup {
     return true;
   }
 
-  static String _base64GzipList(List<Map<String, dynamic>> list) =>
-      base64.encode(gzip.encode(JsonUtf8Encoder().convert(list)));
-
   static List<String> _dedup(List<String> a, List<String> b) =>
       <String>{...a ?? [], ...b ?? []}.toList();
 
@@ -68,17 +65,6 @@ class Setup {
     } catch (e, s) {
       debugLog('remote config could not be downloaded this time');
       debugError(e, s);
-    }
-  }
-
-  static String _encode(List<Map<String, dynamic>> batch) =>
-      '{"batch":"${Setup._base64GzipList(batch)}"}';
-
-  static void _fillSentAt(List<Map<String, dynamic>> batch) {
-    final sentAt = DateTime.now().toUtc().toIso8601String();
-
-    for (var event in batch) {
-      event['sentAt'] = sentAt;
     }
   }
 
@@ -109,17 +95,16 @@ class Setup {
   }
 
   static OnFlush _onFlush(String url, OnBatchFlush onBatchFlush) =>
-      (List<dynamic> payload) async {
+      (List<dynamic> input) async {
         try {
-          final batch = payload.cast<Map<String, dynamic>>();
+          final encoder = Encoder(input);
 
-          if (batch.isNotEmpty) {
-            Setup._fillSentAt(batch);
-            Setup._validatePost(await Setup._post(url, Setup._encode(batch)));
+          if (encoder.batch.isNotEmpty) {
+            Setup._validatePost(await Setup._post(url, encoder.toString()));
           }
 
           try {
-            (onBatchFlush ?? (_) => {})(batch);
+            (onBatchFlush ?? (_) => {})(encoder.batch);
           } catch (_) {
             // completely ignore callback errors on this scope
           }

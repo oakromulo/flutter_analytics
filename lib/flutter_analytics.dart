@@ -12,6 +12,7 @@ library flutter_analytics;
 import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 
 import './event/event.dart' show Event, EventType;
+import './parser/parser.dart' show Parser;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
 import './util/util.dart' show debugError, debugLog, EventBuffer;
@@ -77,19 +78,19 @@ class Analytics {
       Event(EventType.FLUSH, flush: debug).future(_buffer);
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
-  static Future<void> group(String groupId, [Map<String, dynamic> traits]) =>
+  static Future<void> group(String groupId, [dynamic traits]) =>
       _log(Group(groupId, traits));
 
   /// Identifies registered users. A nullable [userId] must be provided.
-  static Future<void> identify(String userId, [Map<String, dynamic> traits]) =>
+  static Future<void> identify(String userId, [dynamic traits]) =>
       _log(Identify(userId, traits));
 
   /// Logs the current screen [name].
-  static Future<void> screen(String name, [Map<String, dynamic> properties]) =>
+  static Future<void> screen(String name, [dynamic properties]) =>
       _log(Screen(name, properties));
 
   /// Logs an [event] and its respective [properties].
-  static Future<void> track(String event, [Map<String, dynamic> properties]) =>
+  static Future<void> track(String event, [dynamic properties]) =>
       _log(Track(event, properties));
 
   static Future<void> _onEvent(Event event) {
@@ -150,7 +151,7 @@ class Analytics {
       final destination = _setup.destinations[i];
 
       try {
-        await _setup.queues[i].push(await event.child.toMap());
+        await _setup.queues[i].push(Parser(await event.child.toMap()));
       } catch (e, s) {
         debugLog('a payload could not be buffered to: $destination');
         debugError(e, s);
