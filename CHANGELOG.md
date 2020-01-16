@@ -1,3 +1,7 @@
+## [v4.0.2](https://github.com/oakromulo/flutter_analytics/tree/v4.0.2) - 2020-01-16
+
+- Exposes parser for external re-use.
+
 ## [v4.0.1](https://github.com/oakromulo/flutter_analytics/tree/v4.0.1) - 2020-01-16
 
 - New JSON parser now safely handles `<dynamic>` payloads containing enums, datetimes, custom

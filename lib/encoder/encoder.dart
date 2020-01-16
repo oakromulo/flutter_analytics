@@ -4,7 +4,7 @@ library encoder;
 import 'dart:convert' show base64, JsonUtf8Encoder;
 import 'dart:io' show gzip;
 
-import '../parser/parser.dart' show Parser;
+import '../parser/parser.dart' show AnalyticsParser;
 
 /// @nodoc
 class Encoder {
@@ -24,7 +24,7 @@ class Encoder {
 
       _fillSentAt(_batch);
 
-      return _batch.map((item) => Parser(item).toJson()).toList();
+      return _batch.map((item) => AnalyticsParser(item).toJson()).toList();
     } catch (_) {
       return [];
     }

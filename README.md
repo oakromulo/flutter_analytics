@@ -9,7 +9,7 @@ Add dependency to `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  flutter_analytics: ^4.0.1
+  flutter_analytics: ^4.0.2
 ```
 
 Run in your terminal:

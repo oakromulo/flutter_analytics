@@ -12,10 +12,12 @@ library flutter_analytics;
 import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 
 import './event/event.dart' show Event, EventType;
-import './parser/parser.dart' show Parser;
+import './parser/parser.dart' show AnalyticsParser;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
 import './util/util.dart' show debugError, debugLog, EventBuffer;
+
+export './parser/parser.dart' show AnalyticsParser;
 
 /// Static singleton class for single-ended app-wide datalogging.
 class Analytics {
@@ -151,7 +153,7 @@ class Analytics {
       final destination = _setup.destinations[i];
 
       try {
-        await _setup.queues[i].push(Parser(await event.child.toMap()));
+        await _setup.queues[i].push(AnalyticsParser(await event.child.toMap()));
       } catch (e, s) {
         debugLog('a payload could not be buffered to: $destination');
         debugError(e, s);

@@ -1,15 +1,15 @@
-/// @nodoc
+/// Exposes [AnalyticsParser].
 library parser;
 
-/// @nodoc
-class Parser {
-  /// @nodoc
-  Parser(this.payload);
+/// Basic class for safely parsing `<dynamic>` [payload]s.
+class AnalyticsParser {
+  /// Return an [AnalyticsParser] instance.
+  AnalyticsParser(this.payload);
 
-  /// @nodoc
+  /// Input [Object] to be parsed.
   final dynamic payload;
 
-  /// @nodoc
+  /// Return a JSON-encodable `Map<String, dynamic>` matching [payload].
   Map<String, dynamic> toJson() => _encodeMap(payload) ?? <String, dynamic>{};
 
   static dynamic _encode(dynamic input) {
