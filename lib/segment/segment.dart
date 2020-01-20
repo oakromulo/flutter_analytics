@@ -15,26 +15,15 @@ export './segment_track.dart' show Track;
 /// @nodoc
 abstract class Segment {
   /// @nodoc
-  Segment(this.type, {this.groupId, this.properties, this.traits, this.userId})
+  Segment(this.type,
+      {String groupId, this.properties, this.traits, String userId})
       : _timestamp = DateTime.now().toUtc().toIso8601String() {
-    if (groupId != null) {
-      _store.groupId = groupId;
-    } else {
-      groupId = _store.groupId;
-    }
-
-    if (userId != null) {
-      _store.userId = userId;
-    } else {
-      userId = _store.userId;
+    if (type == SegmentTypeEnum.GROUP) {
+      Store().groupId = groupId;
+    } else if (type == SegmentTypeEnum.IDENTIFY) {
+      Store().userId = userId;
     }
   }
-
-  /// @nodoc
-  final SegmentTypeEnum type;
-
-  /// @nodoc
-  String groupId;
 
   /// @nodoc
   final Map<String, dynamic> properties;
@@ -43,9 +32,8 @@ abstract class Segment {
   final Map<String, dynamic> traits;
 
   /// @nodoc
-  String userId;
+  final SegmentTypeEnum type;
 
-  static final Store _store = Store();
   static final String _dartEnv = dartEnv();
 
   static String _previousMessageId;
@@ -59,12 +47,12 @@ abstract class Segment {
     _nextMessageId = Uuid().v4();
 
     final sdkProps = <String, dynamic>{
-      'orgId': await _store.orgId,
+      'orgId': await Store().orgId,
       'sdk': <String, dynamic>{
         'dartEnv': _dartEnv,
         'nextMessageId': _nextMessageId,
         'previousMessageId': _previousMessageId ?? messageId,
-        'sessionId': await _store.sessionId,
+        'sessionId': await Store().sessionId,
         'tzOffsetHours': DateTime.now().timeZoneOffset.inHours
       }
     };
@@ -72,8 +60,8 @@ abstract class Segment {
     _previousMessageId = messageId;
 
     final payload = <String, dynamic>{
-      'anonymousId': await _store.anonymousId,
-      'context': {...await Context().toMap(), 'groupId': groupId},
+      'anonymousId': await Store().anonymousId,
+      'context': {...await Context().toMap(), 'groupId': Store().groupId},
       'messageId': messageId,
       'properties': (properties ?? {})..addAll(sdkProps),
       'timestamp': _timestamp,
@@ -81,7 +69,7 @@ abstract class Segment {
         ..addAll(sdkProps)
         ..remove('id'),
       'type': type.toString().split('.').last.toLowerCase(),
-      'userId': userId
+      'userId': Store().userId
     };
 
     return payload;

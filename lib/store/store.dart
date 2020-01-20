@@ -40,15 +40,19 @@ class Store {
       await _get('anonymousId') ?? await _resetAnonymousId();
 
   /// @nodoc
-  String get groupId => _groupId;
+  String get groupId => (_groupId ?? '').isNotEmpty ? _groupId : null;
 
   set groupId(String groupId) {
-    _groupId = groupId;
+    final id = groupId ?? '';
 
-    File('$_path/group_id')
-        .create()
-        .then((file) => file.writeAsString(groupId ?? ''))
-        .catchError((_) => null);
+    if (_groupId != id) {
+      _groupId = id;
+
+      File('$_path/group_id')
+          .create()
+          .then((file) => file.writeAsString(_groupId))
+          .catchError((_) => null);
+    }
   }
 
   /// @nodoc
@@ -65,15 +69,19 @@ class Store {
   }
 
   /// @nodoc
-  String get userId => _userId;
+  String get userId => (_userId ?? '').isNotEmpty ? _userId : null;
 
   set userId(String userId) {
-    _userId = userId;
+    final id = userId ?? '';
 
-    File('$_path/user_id')
-        .create()
-        .then((file) => file.writeAsString(userId ?? ''))
-        .catchError((_) => null);
+    if (_userId != id) {
+      _userId = id;
+
+      File('$_path/user_id')
+          .create()
+          .then((file) => file.writeAsString(_userId))
+          .catchError((_) => null);
+    }
   }
 
   Future<String> _get(String key) =>
@@ -143,15 +151,15 @@ class Store {
     getApplicationDocumentsDirectory().then((dir) {
       _path = dir.path;
 
-      File('$_path/user_id')
-          .readAsString()
-          .then((userId) => _userId = userId)
-          .catchError((_) => null);
-
       File('$_path/group_id')
           .readAsString()
           .then((groupId) => _groupId = groupId)
-          .catchError((_) => null);
+          .catchError((_) => _groupId = '');
+
+      File('$_path/user_id')
+          .readAsString()
+          .then((userId) => _userId = userId)
+          .catchError((_) => _userId = '');
     }).catchError((_) => null);
   }
 
