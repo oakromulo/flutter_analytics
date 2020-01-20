@@ -19,6 +19,6 @@ Future<Map<String, dynamic>> contextApp() async {
   } catch (e, s) {
     debugError(e, s);
 
-    return {};
+    return <String, dynamic>{};
   }
 }

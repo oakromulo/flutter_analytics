@@ -63,9 +63,9 @@ abstract class Segment {
       'anonymousId': await Store().anonymousId,
       'context': {...await Context().toMap(), 'groupId': Store().groupId},
       'messageId': messageId,
-      'properties': (properties ?? {})..addAll(sdkProps),
+      'properties': (properties ?? <String, dynamic>{})..addAll(sdkProps),
       'timestamp': _timestamp,
-      'traits': (traits ?? {})
+      'traits': (traits ?? <String, dynamic>{})
         ..addAll(sdkProps)
         ..remove('id'),
       'type': type.toString().split('.').last.toLowerCase(),

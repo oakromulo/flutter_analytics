@@ -14,7 +14,7 @@ Future<Map<String, dynamic>> contextOS() async {
   } catch (e, s) {
     debugError(e, s);
 
-    return {};
+    return <String, dynamic>{};
   }
 }
 

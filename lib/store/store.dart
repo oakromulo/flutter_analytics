@@ -110,7 +110,8 @@ class Store {
     try {
       String value;
 
-      final Map<String, dynamic> item = await _storage.getItem(event.key) ?? {};
+      final Map<String, dynamic> item =
+          await _storage.getItem(event.key) ?? <String, dynamic>{};
 
       if (item != null && item.containsKey('v')) {
         value = item['v'].toString();
