@@ -1,6 +1,8 @@
 /// Exposes [AnalyticsParser].
 library parser;
 
+import '../util/util.dart' show camelCase;
+
 /// Basic class for safely parsing `<dynamic>` [payload]s.
 class AnalyticsParser {
   /// Return an [AnalyticsParser] instance.
@@ -64,7 +66,11 @@ class AnalyticsParser {
       final _output = <String, dynamic>{};
 
       for (final MapEntry<String, dynamic> entry in _input.entries) {
-        _output[entry.key] = _encode(entry.value);
+        final key = camelCase(entry.key);
+
+        if (key != null) {
+          _output[key] = _encode(entry.value);
+        }
       }
 
       return _output;
