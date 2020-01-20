@@ -24,15 +24,12 @@ void debugLog(dynamic msg) => _debug(() {
 String camelCase(String s) => _toCase(s, (s) => ReCase(s).camelCase);
 
 /// @nodoc
-String paramCase(String s) => _toCase(s, (s) => ReCase(s).paramCase);
-
-/// @nodoc
 String titleCase(String s) => _toCase(s, (s) => ReCase(s).titleCase);
 
 String _toCase(String string, String Function(String) recaseFunction) {
   try {
     if (string == null || string.isEmpty) {
-      throw null;
+      return null;
     }
 
     return recaseFunction(string);
