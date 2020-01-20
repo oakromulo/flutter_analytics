@@ -37,7 +37,7 @@ class AnalyticsParser {
   static String _encodeDefault(dynamic input) {
     try {
       if (input == null) {
-        throw null;
+        return null;
       }
 
       return input.toString();
