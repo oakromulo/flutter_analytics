@@ -1,3 +1,10 @@
+## [v5.0.1](https://github.com/oakromulo/flutter_analytics/tree/v5.0.1) - 2020-01-20
+
+- Improved and simplified parser.
+- Better handling of null and repetitive groupIds and userIds.
+- Recases payloads automatically: all object keys get `camelCased` and screen/tracks event names
+  become `Title Cased`.
+
 ## [v4.0.2](https://github.com/oakromulo/flutter_analytics/tree/v4.0.2) - 2020-01-16
 
 - Exposes parser for external re-use.

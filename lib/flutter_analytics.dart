@@ -150,12 +150,11 @@ class Analytics {
     int i = _setup.queues.length;
 
     while (--i >= 0) {
-      final destination = _setup.destinations[i];
-
       try {
-        await _setup.queues[i].push(AnalyticsParser(await event.child.toMap()));
+        await _setup.queues[i]
+            .push(AnalyticsParser(await event.child.toMap()).toJson());
       } catch (e, s) {
-        debugLog('a payload could not be buffered to: $destination');
+        debugLog('a payload cannot be buffered to: ${_setup.destinations[i]}');
         debugError(e, s);
       }
     }

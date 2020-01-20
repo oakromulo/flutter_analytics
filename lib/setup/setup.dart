@@ -104,7 +104,7 @@ class Setup {
           }
 
           try {
-            (onBatchFlush ?? (_) => {})(encoder.batch);
+            (onBatchFlush ?? (_) => null)(encoder.batch);
           } catch (_) {
             // completely ignore callback errors on this scope
           }

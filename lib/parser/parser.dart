@@ -1,6 +1,8 @@
 /// Exposes [AnalyticsParser].
 library parser;
 
+import '../util/util.dart' show camelCase;
+
 /// Basic class for safely parsing `<dynamic>` [payload]s.
 class AnalyticsParser {
   /// Return an [AnalyticsParser] instance.
@@ -13,30 +15,32 @@ class AnalyticsParser {
   Map<String, dynamic> toJson() => _encodeMap(payload) ?? <String, dynamic>{};
 
   static dynamic _encode(dynamic input) {
-    try {
-      switch (_EntryType.from(input)) {
-        case _EntryTypes.NULL:
-        case _EntryTypes.SIMPLE:
-          return input;
-
-        case _EntryTypes.DATE:
-          return _encodeDateTime(input);
-
-        case _EntryTypes.LIST:
-          return _encodeList(input);
-
-        case _EntryTypes.MAP:
-        case _EntryTypes.OTHER:
-          return _encodeMap(input) ?? input.toString();
-      }
-    } catch (_) {
-      return null;
+    if (_isSimpleType(input)) {
+      return input;
+    } else if (_isDateTime(input)) {
+      return _encodeDateTime(input);
+    } else if (_isList(input)) {
+      return _encodeList(input);
     }
+
+    return _encodeMap(input) ?? _encodeDefault(input);
   }
 
   static String _encodeDateTime(dynamic input) {
     try {
       return (input as DateTime).toUtc().toIso8601String();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String _encodeDefault(dynamic input) {
+    try {
+      if (input == null) {
+        return null;
+      }
+
+      return input.toString();
     } catch (_) {
       return null;
     }
@@ -56,39 +60,23 @@ class AnalyticsParser {
         return null;
       }
 
-      if (_EntryType.from(input) != _EntryTypes.MAP) {
+      if (!_isMap(input)) {
         return _encodeMap(input.toJson());
       }
 
-      final _input = Map<String, dynamic>.of(input);
       final _output = <String, dynamic>{};
 
-      for (final MapEntry<String, dynamic> entry in _input.entries) {
-        _output[entry.key] = _encode(entry.value);
+      for (final entry in Map<String, dynamic>.from(input).entries) {
+        final key = camelCase(entry.key);
+
+        if (key != null) {
+          _output[key] = _encode(entry.value);
+        }
       }
 
       return _output;
     } catch (_) {
       return null;
-    }
-  }
-}
-
-/// @nodoc
-extension _EntryType on _EntryTypes {
-  static _EntryTypes from(dynamic input) {
-    if (input == null) {
-      return _EntryTypes.NULL;
-    } else if (_isSimple(input)) {
-      return _EntryTypes.SIMPLE;
-    } else if (_isList(input)) {
-      return _EntryTypes.LIST;
-    } else if (_isMap(input)) {
-      return _EntryTypes.MAP;
-    } else if (_isDateTime(input)) {
-      return _EntryTypes.DATE;
-    } else {
-      return _EntryTypes.OTHER;
     }
   }
 
@@ -100,32 +88,31 @@ extension _EntryType on _EntryTypes {
     }
   }
 
-  static bool _isMap(dynamic input) {
-    try {
-      return input.runtimeType.toString().contains('Map<String') &&
-          Map<String, dynamic>.of(input) is Map<String, dynamic>;
-    } catch (_) {
-      return false;
-    }
-  }
-
   static bool _isList(dynamic input) {
     try {
-      return input.runtimeType.toString().contains('List<') &&
-          List<dynamic>.of(input) is List<dynamic>;
+      return List<dynamic>.from(input) is List<dynamic>;
     } catch (_) {
       return false;
     }
   }
 
-  static bool _isSimple(dynamic input) {
+  static bool _isMap(dynamic input) {
     try {
+      return Map<String, dynamic>.from(input) is Map<String, dynamic>;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static bool _isSimpleType(dynamic input) {
+    try {
+      if (input == null) {
+        return true;
+      }
+
       return <Type>[bool, double, int, String].contains(input.runtimeType);
     } catch (_) {
       return false;
     }
   }
 }
-
-/// @nodoc
-enum _EntryTypes { DATE, LIST, MAP, NULL, OTHER, SIMPLE }

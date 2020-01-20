@@ -1,6 +1,8 @@
 /// @nodoc
 library segment_screen;
 
+import '../util/util.dart' show titleCase;
+
 import './segment.dart' show Segment, SegmentTypeEnum;
 
 /// @nodoc
@@ -15,6 +17,6 @@ class Screen extends Segment {
   /// @nodoc
   @override
   Future<Map<String, dynamic>> toMap() async => (await super.toMap())
-    ..addAll(<String, dynamic>{'name': name})
+    ..addAll(<String, dynamic>{'name': titleCase(name)})
     ..remove('traits');
 }

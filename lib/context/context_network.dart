@@ -18,6 +18,6 @@ Future<Map<String, dynamic>> contextNetwork() async {
   } catch (e, s) {
     util.debugError(e, s);
 
-    return {};
+    return <String, dynamic>{};
   }
 }

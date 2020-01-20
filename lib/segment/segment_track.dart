@@ -1,6 +1,8 @@
 /// @nodoc
 library segment_track;
 
+import '../util/util.dart' show titleCase;
+
 import './segment.dart' show Segment, SegmentTypeEnum;
 
 /// @nodoc
@@ -15,6 +17,6 @@ class Track extends Segment {
   /// @nodoc
   @override
   Future<Map<String, dynamic>> toMap() async => (await super.toMap())
-    ..addAll(<String, dynamic>{'event': event})
+    ..addAll(<String, dynamic>{'event': titleCase(event)})
     ..remove('traits');
 }
