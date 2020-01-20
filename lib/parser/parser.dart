@@ -66,7 +66,7 @@ class AnalyticsParser {
 
       final _output = <String, dynamic>{};
 
-      for (final entry in Map<String, dynamic>.of(input).entries) {
+      for (final entry in Map<String, dynamic>.from(input).entries) {
         final key = camelCase(entry.key);
 
         if (key != null) {
@@ -90,8 +90,7 @@ class AnalyticsParser {
 
   static bool _isList(dynamic input) {
     try {
-      return input.runtimeType.toString().contains('List<') &&
-          List<dynamic>.of(input) is List<dynamic>;
+      return List<dynamic>.from(input) is List<dynamic>;
     } catch (_) {
       return false;
     }
@@ -99,8 +98,7 @@ class AnalyticsParser {
 
   static bool _isMap(dynamic input) {
     try {
-      return input.runtimeType.toString().contains('Map<String') &&
-          Map<String, dynamic>.of(input) is Map<String, dynamic>;
+      return Map<String, dynamic>.from(input) is Map<String, dynamic>;
     } catch (_) {
       return false;
     }
