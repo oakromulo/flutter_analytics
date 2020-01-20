@@ -29,7 +29,7 @@ class AnalyticsParser {
 
         case _EntryTypes.MAP:
         case _EntryTypes.OTHER:
-          return _encodeMap(input) ?? input.toString();
+          return _encodeMap(input) ?? _encodeDefault(input);
       }
     } catch (_) {
       return null;
@@ -39,6 +39,18 @@ class AnalyticsParser {
   static String _encodeDateTime(dynamic input) {
     try {
       return (input as DateTime).toUtc().toIso8601String();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String _encodeDefault(dynamic input) {
+    try {
+      if (input == null) {
+        throw null;
+      }
+
+      return input.toString();
     } catch (_) {
       return null;
     }
