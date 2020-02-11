@@ -1,3 +1,8 @@
+## [v6.0.1](https://github.com/oakromulo/flutter_analytics/tree/v6.0.1) - 2020-02-11
+
+- Breaking change: singleton instantion of `Analytics` objects instead of static calls.
+- Support method `::updateAppLifecycleState` added to improve SDK behavior on background.
+
 ## [v5.0.1](https://github.com/oakromulo/flutter_analytics/tree/v5.0.1) - 2020-01-20
 
 - Improved and simplified parser.

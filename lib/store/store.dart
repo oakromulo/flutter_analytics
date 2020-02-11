@@ -19,21 +19,22 @@ class Store {
   factory Store() => _store;
 
   Store._internal() {
-    _init();
+    _hasInit = _init();
 
-    _buffer = EventBuffer(_onEvent);
+    _buffer = EventBuffer<_StoreEvent>(_onEvent);
     _StoreEvent(_StoreEventType.SETUP).future(_buffer).catchError(debugError);
   }
 
-  static final Store _store = Store._internal();
+  static final _store = Store._internal();
 
-  Config _config;
   LocalStorage _storage;
   EventBuffer<_StoreEvent> _buffer;
 
   String _groupId;
   String _path;
   String _userId;
+
+  Future<bool> _hasInit;
 
   /// @nodoc
   Future<String> get anonymousId async =>
@@ -42,15 +43,13 @@ class Store {
   /// @nodoc
   String get groupId => (_groupId ?? '').isNotEmpty ? _groupId : null;
 
-  set groupId(String groupId) {
-    final id = groupId ?? '';
-
-    if (_groupId != id) {
+  set groupId(String id) {
+    if (id != groupId) {
       _groupId = id;
 
       File('$_path/group_id')
-          .create()
-          .then((file) => file.writeAsString(_groupId))
+          .create(recursive: true)
+          .then((file) => file.writeAsString(id ?? ''))
           .catchError((_) => null);
     }
   }
@@ -71,15 +70,13 @@ class Store {
   /// @nodoc
   String get userId => (_userId ?? '').isNotEmpty ? _userId : null;
 
-  set userId(String userId) {
-    final id = userId ?? '';
-
-    if (_userId != id) {
+  set userId(String id) {
+    if (id != userId) {
       _userId = id;
 
       File('$_path/user_id')
-          .create()
-          .then((file) => file.writeAsString(_userId))
+          .create(recursive: true)
+          .then((file) => file.writeAsString(id ?? ''))
           .catchError((_) => null);
     }
   }
@@ -137,7 +134,7 @@ class Store {
 
   Future<void> _onSetup(_StoreEvent event) async {
     try {
-      _config = Config();
+      await _hasInit;
 
       _storage = LocalStorage('__analytics_storage__');
       await _storage.ready;
@@ -148,20 +145,17 @@ class Store {
     }
   }
 
-  void _init() {
-    getApplicationDocumentsDirectory().then((dir) {
-      _path = dir.path;
+  Future<bool> _init() async {
+    try {
+      _path = (await getApplicationDocumentsDirectory()).path;
 
-      File('$_path/group_id')
-          .readAsString()
-          .then((groupId) => _groupId = groupId)
-          .catchError((_) => _groupId = '');
-
-      File('$_path/user_id')
-          .readAsString()
-          .then((userId) => _userId = userId)
-          .catchError((_) => _userId = '');
-    }).catchError((_) => null);
+      _groupId ??= await File('$_path/group_id').readAsString();
+      _userId ??= await File('$_path/user_id').readAsString();
+    } catch (_) {
+      // do nothing
+    } finally {
+      return true;
+    }
   }
 
   Future<bool> _isSessionInvalid() async {
@@ -171,7 +165,7 @@ class Store {
       return true;
     }
 
-    final sessionTimeout = _config.sessionTimeout;
+    final sessionTimeout = Config().sessionTimeout;
     return DateTime.now().toUtc().isAfter(t0.add(sessionTimeout));
   }
 

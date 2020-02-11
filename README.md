@@ -9,7 +9,7 @@ Add dependency to `pubspec.yaml`:
 ```yaml
 dependencies:
   ...
-  flutter_analytics: ^5.0.1
+  flutter_analytics: ^6.0.1
 ```
 
 Run in your terminal:
@@ -24,19 +24,19 @@ flutter packages get
 import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
 
 // initial setup to run once on application lifecycle
-Analytics.setup(destinations: ['http://localhost:3000/analytics']);
+Analytics().setup(destinations: ['http://localhost:3000/analytics']);
 
 // uniquely identify group of users
-Analytics.group('someGroupId', {'numTrait': 7, 'txtTrait': 'tGroup'});
+Analytics().group('someGroupId', {'numTrait': 7, 'txtTrait': 'tGroup'});
 
 // uniquely identify current user and its traits
-Analytics.identify('anUserId', {'numTrait': 5, 'txtTrait': 'uUser'});
+Analytics().identify('anUserId', {'numTrait': 5, 'txtTrait': 'uUser'});
 
 // identify current screen being viewed
-Analytics.screen('My Screen', {'numProp': -1, 'txtProp': 'pScreen'});
+Analytics().screen('My Screen', {'numProp': -1, 'txtProp': 'pScreen'});
 
 // track discrete events
-Analytics.track('Any Event', {'numProp': 3, 'txtProp': 'pTrack'});
+Analytics().track('Any Event', {'numProp': 3, 'txtProp': 'pTrack'});
 ```
 
 ## Server-side consumption example
@@ -92,7 +92,7 @@ def upload(event):
 A remote config file can be supplied like this:
 
 ```dart
-Analytics.setup(
+Analytics().setup(
   configUrl: 'https://gist.githubusercontent.com/oakromulo/7678b2b187a24e47c0ba93085575477d/raw/e72767273e4e6a73d14377f650be63d66033a6e3/config.json'
 )
 ```
@@ -111,18 +111,8 @@ flutter run
 ```sh
 cd ~/flutter_analytics/test
 flutter packages get
-APP_CONFIG_URL="https://remote.config" dart tool/tool_env.dart
+APP_CONFIG_URL="https://remote.config" flutter pub run tool/tool_env.dart
 flutter drive --target=lib/main.dart
-```
-
-## Build documentation locally
-
-```sh
-cd ~/flutter_analytics
-rm -rf doc
-dartdoc
-serve doc/api
-open 'localhost:5000'
 ```
 
 ## License

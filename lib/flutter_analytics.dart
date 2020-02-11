@@ -12,6 +12,7 @@ library flutter_analytics;
 import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 
 import './event/event.dart' show Event, EventType;
+import './lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 import './parser/parser.dart' show AnalyticsParser;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
@@ -21,47 +22,35 @@ export './parser/parser.dart' show AnalyticsParser;
 
 /// Static singleton class for single-ended app-wide datalogging.
 class Analytics {
-  /// @nodoc
-  Analytics.private();
+  /// Returns a global singleton instance of [Analytics].
+  factory Analytics() => _analytics;
 
-  static final _buffer = EventBuffer(_onEvent);
+  Analytics._internal()
+      : enabled = true,
+        _ready = false {
+    _buffer = EventBuffer<Event>(_onEvent);
 
-  static bool _ready = false;
-  static Setup _setup;
+    AppLifecycle().addCallback((state) {
+      if (_ready) {
+        track('Application ${state.toString().split('AppLifecycleState.')[1]}');
+      }
+    });
+  }
 
-  /// Data collection readiness: `true` after a successful [Analytics.setup].
+  /// SDK bypass: `false` bypasses data collections entirely.
+  bool enabled;
+
+  static final _analytics = Analytics._internal();
+
+  EventBuffer<Event> _buffer;
+  bool _ready;
+  Setup _setup;
+
+  /// Data collection readiness: `true` after a successful [setup].
   ///
   /// An `AnalyticsNotReady` exception gets thrown if [group], [identify],
   /// [screen] and [track] calls are made after an unsuccessful [setup].
-  static bool get ready => _ready;
-
-  /// SDK bypass: `false` bypasses data collections entirely.
-  static bool enabled = true;
-
-  /// Instantiates analytics engine with basic information before logging.
-  ///
-  /// It is *not* required to `await` for [setup] to finish before doing
-  /// anything else. The analytics engine has its own isolated producer X
-  /// consumer action buffer so that every method call is executed sequentially
-  /// one at a time (chronological order is STRICTLY) respected. For example:
-  /// an unawaited [group] may be immediately after a [setup] call but if for
-  /// whatever reason [setup] fails then a `AnalyticsNotReady` exception gets
-  /// thrown just as if [group] preceded the initial [setup].
-  ///
-  /// Params:
-  /// - [configUrl]: remote url to load OTA settings for analytics.
-  /// - [destinations]: list of POST endpoints able to receive analytics
-  /// - [onFlush]: callback to be called after every event batch being flushed
-  /// - [orgId]: unique identifier for the top-level org in analytics events.
-  static Future<void> setup(
-      {String configUrl,
-      List<String> destinations,
-      OnBatchFlush onFlush,
-      String orgId}) {
-    final setup = SetupParams(configUrl, destinations, onFlush, orgId);
-
-    return Event(EventType.SETUP, setup: setup).future(_buffer);
-  }
+  bool get ready => _ready;
 
   /// Triggers a manual flush operation to clear all local buffers.
   ///
@@ -76,26 +65,61 @@ class Analytics {
   /// p.s.2 flushing might not start immediately as the flush operation (just as
   /// all other public methods) gets scheduled to occur sequentially after all
   /// previous logging calls go through on the action buffer.
-  static Future<void> flush([OnFlush debug]) =>
+  Future<void> flush([OnFlush debug]) =>
       Event(EventType.FLUSH, flush: debug).future(_buffer);
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
-  static Future<void> group(String groupId, [dynamic traits]) =>
+  Future<void> group(String groupId, [dynamic traits]) =>
       _log(Group(groupId, traits));
 
   /// Identifies registered users. A nullable [userId] must be provided.
-  static Future<void> identify(String userId, [dynamic traits]) =>
+  Future<void> identify(String userId, [dynamic traits]) =>
       _log(Identify(userId, traits));
 
   /// Logs the current screen [name].
-  static Future<void> screen(String name, [dynamic properties]) =>
+  Future<void> screen(String name, [dynamic properties]) =>
       _log(Screen(name, properties));
 
+  /// Instantiates analytics engine with basic information before logging.
+  ///
+  /// It is *not* required to `await` for [setup] to finish before doing
+  /// anything else. The analytics engine has its own isolated producer X
+  /// consumer action buffer so that every method call is executed sequentially
+  /// one at a time (chronological order is STRICTLY) respected. For example:
+  /// an unawaited [group] may be immediately after a [setup] call but if for
+  /// whatever reason [setup] fails then a `AnalyticsNotReady` exception gets
+  /// thrown just as if [group] preceded the initial [setup].
+  ///
+  /// Params:
+  /// - [configUrl]: remote url to load OTA settings for analytics
+  /// - [destinations]: list of POST endpoints able to receive analytics
+  /// - [onFlush]: callback to be called after every event batch being flushed
+  /// - [orgId]: unique identifier for the top-level org in analytics events
+  Future<void> setup(
+      {String configUrl,
+      List<String> destinations,
+      OnBatchFlush onFlush,
+      String orgId}) {
+    final setup = SetupParams(configUrl, destinations, onFlush, orgId);
+
+    return Event(EventType.SETUP, setup: setup).future(_buffer);
+  }
+
   /// Logs an [event] and its respective [properties].
-  static Future<void> track(String event, [dynamic properties]) =>
+  Future<void> track(String event, [dynamic properties]) =>
       _log(Track(event, properties));
 
-  static Future<void> _onEvent(Event event) {
+  /// Informs [Analytics] of caller [AppLifecycleState] changes.
+  ///
+  /// p.s. this is required for correct [Analytics] behavior on background.
+  void updateAppLifecycleState(AppLifecycleState state) {
+    AppLifecycle().state = state;
+  }
+
+  Future<void> _log(Segment child) =>
+      Event(EventType.LOG, child: child).future(_buffer);
+
+  Future<void> _onEvent(Event event) {
     switch (event.type) {
       case EventType.FLUSH:
         return _onFlushEvent(event);
@@ -111,7 +135,7 @@ class Analytics {
     }
   }
 
-  static Future<void> _onFlushEvent(Event event) async {
+  Future<void> _onFlushEvent(Event event) async {
     if (!_ready) {
       return event.completer.completeError('AnalyticsNotReady');
     }
@@ -138,7 +162,7 @@ class Analytics {
     event.completer.complete();
   }
 
-  static Future<void> _onLogEvent(Event event) async {
+  Future<void> _onLogEvent(Event event) async {
     if (!_ready) {
       return event.completer.completeError('AnalyticsNotReady');
     }
@@ -162,7 +186,7 @@ class Analytics {
     event.completer.complete();
   }
 
-  static Future<void> _onSetupEvent(Event event) async {
+  Future<void> _onSetupEvent(Event event) async {
     try {
       debugLog(_ready ? 'a previous setup will be overwritten' : 'first setup');
 
@@ -181,7 +205,4 @@ class Analytics {
       event.completer.completeError(e, s);
     }
   }
-
-  static Future<void> _log(Segment child) =>
-      Event(EventType.LOG, child: child).future(_buffer);
 }

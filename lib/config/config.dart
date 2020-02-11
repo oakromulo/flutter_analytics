@@ -33,7 +33,7 @@ class Config {
     }
   }
 
-  /// Target # of events, a.k.a. `batchSize`, on each [Analytics.flush]
+  /// Target # of events, a.k.a. `batchSize`, on each [flush]
   ///
   /// When this amount is reached an automatic (implicit) flush operation gets
   /// to dispatch all locally-buffered events to the desired [destinations]

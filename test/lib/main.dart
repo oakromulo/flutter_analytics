@@ -1,5 +1,3 @@
-// ignore_for_file: unawaited_futures
-
 /// @nodoc
 library test_app;
 
@@ -28,21 +26,22 @@ class _MyApp extends StatefulWidget {
   State<StatefulWidget> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<_MyApp> {
+class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
   String txt1 = '', txt2 = '', txt3 = '';
 
   bool localEnabled = true, remoteEnabled = true, tputEnabled = true;
 
   Future<String> localTest() async {
-    Analytics.setup(destinations: ['http://localhost:3000/test'], orgId: _org);
-    await Analytics.flush((_) async => true);
+    await _clear();
+    await Analytics().setup(destinations: ['http://any.com'], orgId: _org);
+    await _clear();
 
-    Analytics.group('testGroupId', {'numTrait': 7, 'txtTrait': 'tGroup'});
-    Analytics.identify('myUserId');
-    Analytics.screen('Test Screen', {'numProp': 5, 'txtProp': 'pScreen'});
-    Analytics.track('Test Event', {'numProp': 3, 'txtProp': 'pTrack'});
+    await Analytics().group('myGroup', {'numTrait': 7, 'txtTrait': 'tGroup'});
+    await Analytics().identify('myUser');
+    await Analytics().screen('A Screen', {'numProp': 5, 'txtProp': 'pScreen'});
+    await Analytics().track('An Event', {'numProp': 3, 'txtProp': 'pTrack'});
 
-    await Analytics.flush((batch) async {
+    await Analytics().flush((batch) async {
       assert(batch.length == 4);
 
       for (int i = 0; i < 4; ++i) {
@@ -51,10 +50,10 @@ class _MyAppState extends State<_MyApp> {
 
         assertEventCore(evt);
 
-        if (i >= 0) {
-          // assert((evt['userId'] ?? 'myUserId') == 'myUserId');
-
+        if (i >= 1) {
           assert(evt['anonymousId'] == batch.first['anonymousId']);
+          assert(evt['context']['groupId'] == 'myGroup');
+          assert(evt['userId'] == 'myUser');
 
           final Map<String, dynamic> firstSdk = batch.first['traits']['sdk'];
           assert(props['sdk']['sessionId'] == firstSdk['sessionId']);
@@ -91,7 +90,8 @@ class _MyAppState extends State<_MyApp> {
       return true;
     });
 
-    await Analytics.flush((_) async => true);
+    await _clear();
+
     return 'local test completed successfully';
   }
 
@@ -102,29 +102,30 @@ class _MyAppState extends State<_MyApp> {
       batches.add(batch);
     };
 
-    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: 'remote');
-    await Analytics.flush((_) async => true);
+    await _clear();
+    Analytics().setup(configUrl: configUrl, onFlush: onFlush, orgId: 'remote');
+    await _clear();
 
-    Analytics.group('myGroupIdGoesHere');
+    Analytics().group('myGroupIdGoesHere');
 
-    Analytics.identify(
-        '5c903bce-6fa8-4501-9bfd-7bc52a851aec', <String, dynamic>{
+    Analytics()
+        .identify('5c903bce-6fa8-4501-9bfd-7bc52a851aec', <String, dynamic>{
       'birthday': '1997-01-18T00:00:00.000000Z',
       'createdAt': '2018-05-04T14:13:28.941000Z',
       'gender': 'fluid',
     });
 
-    Analytics.screen('Post Viewer', <String, dynamic>{
+    Analytics().screen('Post Viewer', <String, dynamic>{
       'url': 'app://deeplink.myapp/post/5b450fd6504f3fec66bb99bc?src=push'
     });
 
-    Analytics.track('Some Event');
+    Analytics().track('Some Event');
 
-    Analytics.track('Application Backgrounded', <String, dynamic>{
+    Analytics().track('Application Backgrounded', <String, dynamic>{
       'url': 'app://deeplink.myapp/post/5b450fd6504f3fec66bb99bc?src=push'
     });
 
-    Analytics.flush();
+    Analytics().flush();
 
     while (batches.isEmpty) {
       await Future<void>.delayed(Duration(seconds: 1));
@@ -133,7 +134,8 @@ class _MyAppState extends State<_MyApp> {
     // may implicate in false negatives for edge cases
     assert(batches.last.length >= 5);
 
-    await Analytics.flush((_) async => true);
+    await _clear();
+
     return 'remote test completed successfully';
   }
 
@@ -147,12 +149,13 @@ class _MyAppState extends State<_MyApp> {
       _evtCnt += b.length;
     };
 
-    Analytics.setup(configUrl: configUrl, onFlush: onFlush, orgId: 'tput');
-    await Analytics.flush((_) async => true);
+    await _clear();
+    Analytics().setup(configUrl: configUrl, onFlush: onFlush, orgId: 'tput');
+    await _clear();
 
     int i = totalTracks;
     while (--i >= 0) {
-      Analytics.track('Load Test Event');
+      Analytics().track('Load Test Event');
     }
 
     while (_evtCnt < totalTracks - 100) {
@@ -160,7 +163,7 @@ class _MyAppState extends State<_MyApp> {
       await Future.delayed(Duration(seconds: 1));
     }
 
-    await Analytics.flush();
+    await Analytics().flush();
 
     final int eventCount = _evtCnt;
     final t1 = DateTime.now();
@@ -170,17 +173,36 @@ class _MyAppState extends State<_MyApp> {
 
     assert(eventTput >= 20.0);
 
-    await Analytics.flush((_) async => true);
+    await _clear();
+
     return 'throughput test completed successfully';
   }
 
   @override
   Widget build(_) {
-    return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(title: Text('Integration Test')),
-            body: bodyBuilder(),
-            bottomNavigationBar: BottomAppBar(child: Row())));
+    final bar = AppBar(title: Text('Integration Test'));
+    final body = bodyBuilder();
+    final bottom = BottomAppBar(child: Row());
+
+    final home = Scaffold(appBar: bar, body: body, bottomNavigationBar: bottom);
+
+    return MaterialApp(home: home);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) =>
+      Analytics().updateAppLifecycleState(state);
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   Widget bodyBuilder() {
@@ -196,6 +218,7 @@ class _MyAppState extends State<_MyApp> {
                 if (!localEnabled) {
                   return;
                 }
+
                 localEnabled = false;
 
                 localTest()
@@ -213,6 +236,7 @@ class _MyAppState extends State<_MyApp> {
                 if (!remoteEnabled) {
                   return;
                 }
+
                 remoteEnabled = false;
 
                 remoteTest()
@@ -230,6 +254,7 @@ class _MyAppState extends State<_MyApp> {
                 if (!tputEnabled) {
                   return;
                 }
+
                 tputEnabled = false;
 
                 throughputTest()
@@ -261,8 +286,6 @@ class _MyAppState extends State<_MyApp> {
       assert(context['os']['name'] == 'iOS');
     }
 
-    assert(context['groupId'] == 'testGroupId');
-
     assert(context['library']['name'] == sdkName);
     assert(context['library']['version'] == sdkVersion);
 
@@ -278,5 +301,11 @@ class _MyAppState extends State<_MyApp> {
     assert(props['sdk']['sessionId'].toString().length == 36);
     assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) >= -12);
     assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) <= 12);
+  }
+
+  Future<void> _clear() async {
+    if (Analytics().ready) {
+      await Analytics().flush((_) => Future.value(true));
+    }
   }
 }

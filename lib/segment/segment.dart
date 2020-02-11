@@ -4,6 +4,7 @@ library segment;
 import 'package:uuid/uuid.dart' show Uuid;
 
 import '../context/context.dart' show Context;
+import '../lifecycle/lifecycle.dart' show AppLifecycle;
 import '../store/store.dart' show Store;
 import '../util/util.dart' show dartEnv;
 
@@ -49,6 +50,8 @@ abstract class Segment {
     final sdkProps = <String, dynamic>{
       'orgId': await Store().orgId,
       'sdk': <String, dynamic>{
+        'appLifecycle':
+            AppLifecycle().state.toString().split('AppLifecycleState.')[1],
         'dartEnv': _dartEnv,
         'nextMessageId': _nextMessageId,
         'previousMessageId': _previousMessageId ?? messageId,
