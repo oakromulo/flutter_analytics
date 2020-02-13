@@ -1,52 +1,38 @@
 /// @nodoc
 library event;
 
-import 'dart:async' show Completer;
-import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
-
-import '../segment/segment.dart' show Segment;
-import '../setup/setup.dart' show SetupParams;
-import '../util/util.dart' show EventBuffer;
+import 'dart:async' show Completer, StreamController, StreamSubscription;
 
 /// @nodoc
 class Event {
   /// @nodoc
-  Event(this.type, {this.child, this.enabled, this.flush, this.setup});
+  Event(this._handler);
+
+  final _completer = Completer<dynamic>();
+  final Future<dynamic> Function() _handler;
 
   /// @nodoc
-  final EventType type;
+  Future<dynamic> get future => _completer.future;
 
   /// @nodoc
-  final Segment child;
-
-  /// @nodoc
-  final bool enabled;
-
-  /// @nodoc
-  final OnFlush flush;
-
-  /// @nodoc
-  final SetupParams setup;
-
-  /// @nodoc
-  final Completer<void> completer = Completer();
-
-  /// @nodoc
-  Future<void> future(EventBuffer<Event> buffer) {
-    buffer.push(this);
-
-    return completer.future;
-  }
+  Future<dynamic> run() => _handler()
+      .then((_) => _completer.complete())
+      .catchError((e, s) => _completer.completeError(e, s));
 }
 
 /// @nodoc
-enum EventType {
+class EventBuffer {
   /// @nodoc
-  FLUSH,
+  EventBuffer() {
+    _subscription = _controller.stream.listen(_onData);
+  }
+
+  final _controller = StreamController<Event>();
+  StreamSubscription<Event> _subscription;
 
   /// @nodoc
-  LOG,
+  Future<dynamic> enqueue(Event event) => _add(event).then((_) => event.future);
 
-  /// @nodoc
-  SETUP
+  Future<void> _add(Event event) async => _controller.add(event);
+  void _onData(Event event) => _subscription.pause(event.run());
 }

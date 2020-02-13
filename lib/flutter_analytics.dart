@@ -11,12 +11,13 @@ library flutter_analytics;
 
 import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 
-import './event/event.dart' show Event, EventType;
+import './context/context_location.dart' show ContextLocation;
+import './event/event.dart' show Event, EventBuffer;
 import './lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 import './parser/parser.dart' show AnalyticsParser;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
-import './util/util.dart' show debugError, debugLog, EventBuffer;
+import './util/util.dart' show debugError, debugLog;
 
 export './parser/parser.dart' show AnalyticsParser;
 
@@ -27,34 +28,27 @@ class Analytics {
 
   Analytics._internal()
       : enabled = true,
-        _ready = false {
-    _buffer = EventBuffer<Event>(_onEvent);
-
-    AppLifecycle().addCallback((state) {
-      if (_ready) {
-        track('Application ${state.toString().split('AppLifecycleState.')[1]}');
-      }
-    });
+        _buffer = EventBuffer() {
+    AppLifecycle().subscribe(_onAppLifecycleState);
   }
 
-  /// SDK bypass: `false` bypasses data collections entirely.
+  /// Disables data collection entirely if `false`. Default is `true`.
   bool enabled;
 
   static final _analytics = Analytics._internal();
 
-  EventBuffer<Event> _buffer;
-  bool _ready;
+  final EventBuffer _buffer;
   Setup _setup;
 
-  /// Data collection readiness: `true` after a successful [setup].
+  /// Indicates data collection readiness after a successful [setup].
   ///
   /// An `AnalyticsNotReady` exception gets thrown if [group], [identify],
-  /// [screen] and [track] calls are made after an unsuccessful [setup].
-  bool get ready => _ready;
+  /// [screen] and [track] calls are made before a successful [setup].
+  bool get ready => _setup != null;
 
   /// Triggers a manual flush operation to clear all local buffers.
   ///
-  /// An optional  [OnFlush] [debug] handler may be provided to send batched
+  /// An optional [OnFlush] [onFlush] handler may be provided to send batched
   /// events to custom destinations for debugging purposes. It must return
   /// `true` to properly dequeue the elements.
   ///
@@ -65,8 +59,9 @@ class Analytics {
   /// p.s.2 flushing might not start immediately as the flush operation (just as
   /// all other public methods) gets scheduled to occur sequentially after all
   /// previous logging calls go through on the action buffer.
-  Future<void> flush([OnFlush debug]) =>
-      Event(EventType.FLUSH, flush: debug).future(_buffer);
+  Future<void> flush([OnFlush onFlush]) => _buffer
+      .enqueue(Event(() => _onFlushEvent(onFlush)))
+      .catchError(debugError);
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
   Future<void> group(String groupId, [dynamic traits]) =>
@@ -75,6 +70,9 @@ class Analytics {
   /// Identifies registered users. A nullable [userId] must be provided.
   Future<void> identify(String userId, [dynamic traits]) =>
       _log(Identify(userId, traits));
+
+  /// Requests authorization to fetch device location.
+  Future<bool> requestPermission() => ContextLocation().requestPermission();
 
   /// Logs the current screen [name].
   Future<void> screen(String name, [dynamic properties]) =>
@@ -100,9 +98,11 @@ class Analytics {
       List<String> destinations,
       OnBatchFlush onFlush,
       String orgId}) {
-    final setup = SetupParams(configUrl, destinations, onFlush, orgId);
+    final setupParams = SetupParams(configUrl, destinations, onFlush, orgId);
 
-    return Event(EventType.SETUP, setup: setup).future(_buffer);
+    return _buffer
+        .enqueue(Event(() => _onSetupEvent(setupParams)))
+        .catchError(debugError);
   }
 
   /// Logs an [event] and its respective [properties].
@@ -116,93 +116,50 @@ class Analytics {
     AppLifecycle().state = state;
   }
 
-  Future<void> _log(Segment child) =>
-      Event(EventType.LOG, child: child).future(_buffer);
+  Future<void> _log(Segment segment) =>
+      _buffer.enqueue(Event(() => _onLogEvent(segment))).catchError(debugError);
 
-  Future<void> _onEvent(Event event) {
-    switch (event.type) {
-      case EventType.FLUSH:
-        return _onFlushEvent(event);
-
-      case EventType.LOG:
-        return _onLogEvent(event);
-
-      case EventType.SETUP:
-        return _onSetupEvent(event);
-
-      default:
-        return Future.value(null);
+  void _onAppLifecycleState(AppLifecycleState state) {
+    if (_setup == null) {
+      return;
+    } else if (state == AppLifecycleState.paused) {
+      flush();
+    } else if (state == AppLifecycleState.resumed) {
+      setup(
+          configUrl: _setup.params.configUrl,
+          destinations: _setup.params.destinations,
+          onFlush: _setup.params.onFlush,
+          orgId: _setup.params.orgId);
     }
   }
 
-  Future<void> _onFlushEvent(Event event) async {
-    if (!_ready) {
-      return event.completer.completeError('AnalyticsNotReady');
-    }
-
-    if (!enabled) {
-      return;
-    }
-
-    int i = _setup.queues.length;
-
-    while (--i >= 0) {
-      final destination = _setup.destinations[i];
-
-      try {
-        await _setup.queues[i].flush(event.flush);
-
-        debugLog('successful manual flush attempt to:\n$destination');
-      } catch (e, s) {
-        debugLog('failed manual flush attempt to:\n$destination');
-        debugError(e, s);
+  Future<void> _onFlushEvent(OnFlush onFlush) async {
+    if (enabled && _setup != null) {
+      for (final queue in _setup.queues) {
+        await queue.flush(onFlush).catchError(debugError);
       }
     }
-
-    event.completer.complete();
   }
 
-  Future<void> _onLogEvent(Event event) async {
-    if (!_ready) {
-      return event.completer.completeError('AnalyticsNotReady');
+  Future<void> _onLogEvent(Segment segment) async {
+    if (_setup == null) {
+      throw Exception('AnalyticsNotReady');
     }
 
-    if (!enabled) {
-      return;
-    }
+    if (enabled) {
+      final payload = AnalyticsParser(await segment.toMap()).toJson();
 
-    int i = _setup.queues.length;
-
-    while (--i >= 0) {
-      try {
-        await _setup.queues[i]
-            .push(AnalyticsParser(await event.child.toMap()).toJson());
-      } catch (e, s) {
-        debugLog('a payload cannot be buffered to: ${_setup.destinations[i]}');
-        debugError(e, s);
+      for (final queue in _setup.queues) {
+        await queue.push(payload).catchError(debugError);
       }
     }
-
-    event.completer.complete();
   }
 
-  Future<void> _onSetupEvent(Event event) async {
-    try {
-      debugLog(_ready ? 'a previous setup will be overwritten' : 'first setup');
+  Future<void> _onSetupEvent(SetupParams setupParams) async {
+    final setup = Setup(setupParams);
+    await setup.ready;
 
-      _setup = Setup(event.setup);
-      await _setup.ready;
-
-      debugLog('successful setup');
-
-      _ready = true;
-      event.completer.complete();
-    } catch (e, s) {
-      debugLog('failed setup attempt');
-      debugError(e, s);
-
-      _ready = false;
-      event.completer.completeError(e, s);
-    }
+    _setup = setup;
+    debugLog('successful setup');
   }
 }

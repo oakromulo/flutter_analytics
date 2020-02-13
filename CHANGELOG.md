@@ -1,3 +1,13 @@
+## [v6.1.1](https://github.com/oakromulo/flutter_analytics/tree/v6.1.1) - 2020-02-14
+
+- [location](https://pub.dev/packages/location) plugin added w/ OTA-adjustable refresh interval
+- Automatic lifecycle tracking removed so that the SDK never fires an implicit event without
+  explicit user action.
+- Refactored internal sequential event buffers.
+- Auto-setup when host application resumes from background (at least one previous successful setup
+  is required).
+- Auto-flush attempt when host application goes into background.
+
 ## [v6.0.1](https://github.com/oakromulo/flutter_analytics/tree/v6.0.1) - 2020-02-11
 
 - Breaking change: singleton instantion of `Analytics` objects instead of static calls.

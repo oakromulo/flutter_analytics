@@ -46,6 +46,10 @@ class Config {
   /// Target max. [Duration] to store an event locally from trigger to flush.
   Duration get flushAtDuration => Duration(seconds: _get('flushAtSecs') ?? 300);
 
+  /// Interval between requests of device location.
+  Duration get locationRefreshInterval =>
+      Duration(seconds: _get('locationRefreshIntervalSecs') ?? 30);
+
   /// Hard max. # of events to be stored locally for a given _destination_
   ///
   /// p.s. data loss occurs when [maxQueueLength] is reached
@@ -78,6 +82,7 @@ class Config {
   String toString() => '''config:
   destinations: ${(destinations ?? []).length}
   flush every: $flushAtLength events
+  location refreshes every: ${locationRefreshInterval.inSeconds} seconds
   max capacity before data loss: $maxQueueLength events
   max local TTL: ${flushAtDuration.inSeconds} seconds
   max session TTL: ${sessionTimeout.inSeconds} seconds

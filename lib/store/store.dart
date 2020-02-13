@@ -1,7 +1,6 @@
 /// @nodoc
 library store;
 
-import 'dart:async' show Completer;
 import 'dart:io' show File;
 
 import 'package:flutter_udid/flutter_udid.dart' show FlutterUdid;
@@ -11,7 +10,8 @@ import 'package:path_provider/path_provider.dart'
 import 'package:uuid/uuid.dart' show Uuid;
 
 import '../config/config.dart' show Config;
-import '../util/util.dart' show EventBuffer, debugError;
+import '../event/event.dart' show Event, EventBuffer;
+import '../util/util.dart' show debugError;
 
 /// @nodoc
 class Store {
@@ -20,21 +20,19 @@ class Store {
 
   Store._internal() {
     _hasInit = _init();
-
-    _buffer = EventBuffer<_StoreEvent>(_onEvent);
-    _StoreEvent(_StoreEventType.SETUP).future(_buffer).catchError(debugError);
+    _buffer = EventBuffer()..enqueue(Event(_onSetup)).catchError(debugError);
   }
 
   static final _store = Store._internal();
 
   LocalStorage _storage;
-  EventBuffer<_StoreEvent> _buffer;
+  EventBuffer _buffer;
 
   String _groupId;
   String _path;
   String _userId;
 
-  Future<bool> _hasInit;
+  Future _hasInit;
 
   /// @nodoc
   Future<String> get anonymousId async =>
@@ -81,71 +79,43 @@ class Store {
     }
   }
 
-  Future<String> _get(String key) =>
-      _StoreEvent(_StoreEventType.GET, key: key).future(_buffer);
-
-  Future<String> _set(String key, Future<String> val) =>
-      _StoreEvent(_StoreEventType.SET, key: key, val: val).future(_buffer);
-
-  Future<void> _onEvent(_StoreEvent event) {
-    switch (event.type) {
-      case _StoreEventType.GET:
-        return _onGet(event);
-
-      case _StoreEventType.SET:
-        return _onSet(event);
-
-      case _StoreEventType.SETUP:
-        return _onSetup(event);
-
-      default:
-        return Future.value(null);
-    }
-  }
-
-  Future<void> _onGet(_StoreEvent event) async {
+  Future<String> _get(String key) async {
     try {
-      String value;
-
-      final Map<String, dynamic> item =
-          await _storage.getItem(event.key) ?? <String, dynamic>{};
-
-      if (item != null && item.containsKey('v')) {
-        value = item['v'].toString();
-      }
-
-      event.completer.complete(value);
+      return await _buffer.enqueue(Event(() => _onGet(key))) as String;
     } catch (e, s) {
-      event.completer.completeError(e, s);
+      debugError(e, s);
+
+      return null;
     }
   }
 
-  Future<void> _onSet(_StoreEvent event) async {
-    try {
-      final val = await event.val;
+  Future<void> _set(String key, Future<String> val) =>
+      _buffer.enqueue(Event(() => _onSet(key, val))).catchError(debugError);
 
-      await _storage.setItem(event.key, {'v': val});
+  Future<String> _onGet(String key) async {
+    String value;
 
-      event.completer.complete();
-    } catch (e, s) {
-      event.completer.completeError(e, s);
+    final Map<String, dynamic> item =
+        await _storage.getItem(key) ?? <String, dynamic>{};
+
+    if (item != null && item.containsKey('v') && item['v'] != null) {
+      value = item['v'].toString();
     }
+
+    return value;
   }
 
-  Future<void> _onSetup(_StoreEvent event) async {
-    try {
-      await _hasInit;
+  Future<void> _onSet(String key, Future<String> val) =>
+      val.then((v) => _storage.setItem(key, {'v': v}));
 
-      _storage = LocalStorage('__analytics_storage__');
-      await _storage.ready;
+  Future<void> _onSetup() async {
+    await _hasInit;
 
-      event.completer.complete();
-    } catch (e, s) {
-      event.completer.completeError(e, s);
-    }
+    _storage = LocalStorage('__analytics_storage__');
+    await _storage.ready;
   }
 
-  Future<bool> _init() async {
+  Future _init() async {
     try {
       _path = (await getApplicationDocumentsDirectory()).path;
 
@@ -153,8 +123,6 @@ class Store {
       _userId ??= await File('$_path/user_id').readAsString();
     } catch (_) {
       // do nothing
-    } finally {
-      return true;
     }
   }
 
@@ -198,21 +166,3 @@ class Store {
     }
   }
 }
-
-class _StoreEvent {
-  _StoreEvent(this.type, {this.key, this.val}) : completer = Completer();
-
-  final _StoreEventType type;
-
-  final String key;
-  final Future<String> val;
-  final Completer<String> completer;
-
-  Future<String> future(EventBuffer<_StoreEvent> buffer) {
-    buffer.push(this);
-
-    return completer.future;
-  }
-}
-
-enum _StoreEventType { GET, SET, SETUP }
