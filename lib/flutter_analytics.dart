@@ -30,11 +30,7 @@ class Analytics {
         _ready = false {
     _buffer = EventBuffer<Event>(_onEvent);
 
-    AppLifecycle().addCallback((state) {
-      if (_ready) {
-        track('Application ${state.toString().split('AppLifecycleState.')[1]}');
-      }
-    });
+    AppLifecycle().subscribe(_onAppLifecycleState);
   }
 
   /// SDK bypass: `false` bypasses data collections entirely.
@@ -45,6 +41,7 @@ class Analytics {
   EventBuffer<Event> _buffer;
   bool _ready;
   Setup _setup;
+  SetupParams _setupParams;
 
   /// Data collection readiness: `true` after a successful [setup].
   ///
@@ -100,9 +97,9 @@ class Analytics {
       List<String> destinations,
       OnBatchFlush onFlush,
       String orgId}) {
-    final setup = SetupParams(configUrl, destinations, onFlush, orgId);
+    _setupParams = SetupParams(configUrl, destinations, onFlush, orgId);
 
-    return Event(EventType.SETUP, setup: setup).future(_buffer);
+    return Event(EventType.SETUP).future(_buffer);
   }
 
   /// Logs an [event] and its respective [properties].
@@ -118,6 +115,19 @@ class Analytics {
 
   Future<void> _log(Segment child) =>
       Event(EventType.LOG, child: child).future(_buffer);
+
+  void _onAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+        return _buffer.push(Event(EventType.FLUSH));
+
+      case AppLifecycleState.resumed:
+        return _buffer.push(Event(EventType.SETUP));
+
+      default:
+        return;
+    }
+  }
 
   Future<void> _onEvent(Event event) {
     switch (event.type) {
@@ -136,12 +146,8 @@ class Analytics {
   }
 
   Future<void> _onFlushEvent(Event event) async {
-    if (!_ready) {
-      return event.completer.completeError('AnalyticsNotReady');
-    }
-
-    if (!enabled) {
-      return;
+    if (!enabled || !_ready) {
+      return event.completer.complete();
     }
 
     int i = _setup.queues.length;
@@ -188,9 +194,13 @@ class Analytics {
 
   Future<void> _onSetupEvent(Event event) async {
     try {
+      if (_setupParams == null) {
+        return event.completer.complete();
+      }
+
       debugLog(_ready ? 'a previous setup will be overwritten' : 'first setup');
 
-      _setup = Setup(event.setup);
+      _setup = Setup(_setupParams);
       await _setup.ready;
 
       debugLog('successful setup');
