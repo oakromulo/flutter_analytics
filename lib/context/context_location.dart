@@ -36,7 +36,7 @@ class ContextLocation {
   Map<String, dynamic> toJson() => <String, dynamic>{
         'latitude': _latitude,
         'longitude': _longitude,
-        ..._time.isEmpty ? {} : {'time': _time}
+        ..._time == null ? {} : {'time': _time}
       };
 
   void _onAppLifecycleState(AppLifecycleState state) {
