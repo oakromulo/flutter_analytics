@@ -60,6 +60,7 @@ class ExampleAppState extends State<ExampleApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    Analytics().requestPermission();
   }
 
   String runExample() {
