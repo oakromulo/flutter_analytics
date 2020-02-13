@@ -97,6 +97,52 @@ Analytics().setup(
 )
 ```
 
+## Location
+
+### Android
+
+In order to use the [location](https://pub.dev/packages/location) plugin in Android, you have to add
+this permission in AndroidManifest.xml :
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
+
+Update your gradle.properties file with this:
+
+```
+android.enableJetifier=true
+android.useAndroidX=true
+org.gradle.jvmargs=-Xmx1536M
+```
+
+Please also make sure that you have those dependencies in your build.gradle:
+
+```
+  dependencies {
+      classpath 'com.android.tools.build:gradle:3.3.0'
+      classpath 'com.google.gms:google-services:4.2.0'
+  }
+...
+  compileSdkVersion 28
+```
+
+### iOS
+
+For device [location](https://pub.dev/packages/location) information in iOS the following permission
+descriptions must be added to `Info.plist`:
+
+```xml
+NSLocationWhenInUseUsageDescription
+NSLocationAlwaysUsageDescription
+```
+
+**Warning:** there is a currently a bug in iOS simulator in which you have to manually select a
+Location several times in order for the Simulator to actually send data. Please keep that in mind
+when testing in iOS simulator.
+
+The OnNmeaMessageListener property is only available for minimum SDK of 24.
+
 ## Run the example on a simulator
 
 ```sh
