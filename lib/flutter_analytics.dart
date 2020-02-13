@@ -11,6 +11,7 @@ library flutter_analytics;
 
 import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 
+import './context/context_location.dart' show ContextLocation;
 import './event/event.dart' show Event, EventBuffer;
 import './lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 import './parser/parser.dart' show AnalyticsParser;
@@ -69,6 +70,9 @@ class Analytics {
   /// Identifies registered users. A nullable [userId] must be provided.
   Future<void> identify(String userId, [dynamic traits]) =>
       _log(Identify(userId, traits));
+
+  /// Requests authorization to fetch device location.
+  Future<bool> requestPermission() => ContextLocation().requestPermission();
 
   /// Logs the current screen [name].
   Future<void> screen(String name, [dynamic properties]) =>

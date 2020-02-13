@@ -33,6 +33,9 @@ class ContextLocation {
   PeriodicTimer _timer;
 
   /// @nodoc
+  Future<bool> requestPermission() => _location.requestPermission();
+
+  /// @nodoc
   Map<String, dynamic> toJson() => <String, dynamic>{
         'latitude': _latitude,
         'longitude': _longitude,
