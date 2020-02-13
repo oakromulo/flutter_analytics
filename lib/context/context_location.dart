@@ -5,7 +5,7 @@ import 'package:location/location.dart' show Location, LocationAccuracy;
 
 import '../config/config.dart' show Config;
 import '../lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
-import '../util/util.dart' show PeriodicTimer;
+import '../timers/timers.dart' show PeriodicTimer;
 
 /// @nodoc
 class ContextLocation {
