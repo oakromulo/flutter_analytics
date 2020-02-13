@@ -1,8 +1,6 @@
 /// @nodoc
 library util;
 
-import 'dart:async' show StreamController, StreamSubscription;
-
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:recase/recase.dart' show ReCase;
 
@@ -46,20 +44,6 @@ void _debug(void Function() exec) {
 
 String _isoNow() {
   return DateTime.now().toUtc().toIso8601String();
-}
-
-/// @nodoc
-class EventBuffer<T> {
-  /// @nodoc
-  EventBuffer(OnEvent<T> onEvent) : _ctlr = StreamController<T>() {
-    _sub = _ctlr.stream.listen((T event) => _sub.pause(onEvent(event)));
-  }
-
-  final StreamController<T> _ctlr;
-  StreamSubscription<T> _sub;
-
-  /// @nodoc
-  void push(T event) => _ctlr.add(event);
 }
 
 /// @nodoc
