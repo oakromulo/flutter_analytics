@@ -82,7 +82,7 @@ class Config {
   String toString() => '''config:
   destinations: ${(destinations ?? []).length}
   flush every: $flushAtLength events
-  location refreshe4s every: ${locationRefreshInterval.inSeconds} seconds
+  location refreshes every: ${locationRefreshInterval.inSeconds} seconds
   max capacity before data loss: $maxQueueLength events
   max local TTL: ${flushAtDuration.inSeconds} seconds
   max session TTL: ${sessionTimeout.inSeconds} seconds
