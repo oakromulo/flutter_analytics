@@ -5,13 +5,12 @@ import 'dart:async' show Completer;
 import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 
 import '../segment/segment.dart' show Segment;
-import '../setup/setup.dart' show SetupParams;
 import '../util/util.dart' show EventBuffer;
 
 /// @nodoc
 class Event {
   /// @nodoc
-  Event(this.type, {this.child, this.enabled, this.flush, this.setup});
+  Event(this.type, {this.child, this.enabled, this.flush});
 
   /// @nodoc
   final EventType type;
@@ -24,9 +23,6 @@ class Event {
 
   /// @nodoc
   final OnFlush flush;
-
-  /// @nodoc
-  final SetupParams setup;
 
   /// @nodoc
   final Completer<void> completer = Completer();
