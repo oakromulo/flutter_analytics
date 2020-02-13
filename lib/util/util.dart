@@ -1,7 +1,7 @@
 /// @nodoc
 library util;
 
-import 'dart:async' show StreamController, StreamSubscription;
+import 'dart:async' show StreamController, StreamSubscription, Timer;
 
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:recase/recase.dart' show ReCase;
@@ -60,6 +60,41 @@ class EventBuffer<T> {
 
   /// @nodoc
   void push(T event) => _ctlr.add(event);
+}
+
+/// @nodoc
+class PeriodicTimer {
+  /// @nodoc
+  PeriodicTimer(this._interval, this._onTick, [this._immediate = true]);
+
+  final Duration _interval;
+  final Function _onTick;
+  final bool _immediate;
+
+  Timer _timer;
+
+  /// @nodoc
+  void disable() {
+    if (_timer == null) {
+      return;
+    }
+
+    _timer.cancel();
+    _timer = null;
+  }
+
+  /// @nodoc
+  void enable() {
+    if (_timer != null) {
+      return;
+    }
+
+    _timer = Timer.periodic(_interval, (_) => _onTick());
+
+    if (_immediate) {
+      _onTick();
+    }
+  }
 }
 
 /// @nodoc
