@@ -12,16 +12,15 @@ import '../encoder/encoder.dart' show Encoder;
 import '../store/store.dart' show Store;
 import '../util/util.dart' show debugError, debugLog;
 
-import './setup_params.dart' show SetupParams, OnBatchFlush;
-
-export './setup_params.dart' show SetupParams, OnBatchFlush;
-
 /// @nodoc
 class Setup {
   /// @nodoc
-  Setup(SetupParams params) {
+  Setup(this.params) {
     _ready = _setup(params);
   }
+
+  /// @nodoc
+  final SetupParams params;
 
   List<String> _destinations;
   Future<bool> _ready;
@@ -141,3 +140,24 @@ class Setup {
     }
   }
 }
+
+/// @nodoc
+class SetupParams {
+  /// @nodoc
+  SetupParams([this.configUrl, this.destinations, this.onFlush, this.orgId]);
+
+  /// @nodoc
+  final String configUrl;
+
+  /// @nodoc
+  final List<String> destinations;
+
+  /// @nodoc
+  final OnBatchFlush onFlush;
+
+  /// @nodoc
+  final String orgId;
+}
+
+/// Type signature alias for the optional `onFlush` event handler.
+typedef OnBatchFlush = void Function(List<Map<String, dynamic>>);
