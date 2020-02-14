@@ -15,9 +15,19 @@ class Event {
   Future<dynamic> get future => _completer.future;
 
   /// @nodoc
-  Future<dynamic> run() => _handler()
-      .then((_) => _completer.complete())
-      .catchError((e, s) => _completer.completeError(e, s));
+  Future<dynamic> run() async {
+    try {
+      final res = await _handler();
+
+      _completer.complete(res);
+
+      return res;
+    } catch (e, s) {
+      _completer.completeError(e, s);
+
+      return null;
+    }
+  }
 }
 
 /// @nodoc
@@ -31,8 +41,11 @@ class EventBuffer {
   StreamSubscription<Event> _subscription;
 
   /// @nodoc
-  Future<dynamic> enqueue(Event event) => _add(event).then((_) => event.future);
+  Future<dynamic> enqueue(Event event) {
+    _controller.add(event);
 
-  Future<void> _add(Event event) async => _controller.add(event);
+    return event.future;
+  }
+
   void _onData(Event event) => _subscription.pause(event.run());
 }
