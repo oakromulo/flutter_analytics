@@ -68,6 +68,7 @@ class ExampleAppState extends State<ExampleApp> with WidgetsBindingObserver {
   Future<String> runExample() async {
     try {
       await Analytics().requestPermission();
+      await Future.delayed(Duration(seconds: 5));
       await example();
 
       return 'Everything fine, see console!';
