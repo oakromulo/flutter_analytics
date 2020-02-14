@@ -6,7 +6,7 @@ const defaults = <String, dynamic>{
   'defaultTimeoutSecs': 60,
   'flushAtLength': 100,
   'flushAtSecs': 300,
-  'locationRefreshIntervalSecs': 30,
+  'locationRefreshIntervalSecs': 15,
   'maxQueueLength': 10000,
   'sessionTimeoutSecs': 1800
 };

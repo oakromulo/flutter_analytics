@@ -48,7 +48,7 @@ class Config {
 
   /// Interval between requests of device location.
   Duration get locationRefreshInterval =>
-      Duration(seconds: _get('locationRefreshIntervalSecs') ?? 30);
+      Duration(seconds: _get('locationRefreshIntervalSecs') ?? 15);
 
   /// Hard max. # of events to be stored locally for a given _destination_
   ///
