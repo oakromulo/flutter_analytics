@@ -1,3 +1,7 @@
+## [v6.3.2+1](https://github.com/oakromulo/flutter_analytics/tree/v6.3.2+1) - 2020-02-15
+
+- Default debug mode silent.
+
 ## [v6.3.2](https://github.com/oakromulo/flutter_analytics/tree/v6.3.2) - 2020-02-15
 
 - Fix [location](https://pub.dev/packages/location) plugin hanging due to either location services
