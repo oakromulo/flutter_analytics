@@ -23,6 +23,7 @@ dependencies:
   package_info: ^0.4.0+13
   path_provider: ^1.6.0
   recase: ^3.0.0
+  synchronized: ^2.2.0
   uuid: ^2.0.4
 
 dev_dependencies:
