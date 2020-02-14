@@ -3,14 +3,14 @@ library context_locale;
 
 import 'package:devicelocale/devicelocale.dart' show Devicelocale;
 
-import '../util/util.dart' show debugError;
+import '../debug/debug.dart' show Debug;
 
 /// @nodoc
 Future<String> contextLocale() async {
   try {
     return Devicelocale.currentLocale;
   } catch (e, s) {
-    debugError(e, s);
+    Debug().error(e, s);
 
     return '';
   }

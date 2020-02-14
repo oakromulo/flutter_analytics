@@ -4,7 +4,7 @@ library context_network;
 import 'package:connectivity/connectivity.dart'
     show Connectivity, ConnectivityResult;
 
-import '../util/util.dart' as util show debugError;
+import '../debug/debug.dart' show Debug;
 
 /// @nodoc
 Future<Map<String, dynamic>> contextNetwork() async {
@@ -16,7 +16,7 @@ Future<Map<String, dynamic>> contextNetwork() async {
       'wifi': connectivityResult == ConnectivityResult.wifi
     };
   } catch (e, s) {
-    util.debugError(e, s);
+    Debug().error(e, s);
 
     return <String, dynamic>{};
   }

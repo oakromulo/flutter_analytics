@@ -5,14 +5,14 @@ import 'dart:io' show Platform;
 
 import 'package:device_info/device_info.dart' show DeviceInfoPlugin;
 
-import '../util/util.dart' show debugError;
+import '../debug/debug.dart' show Debug;
 
 /// @nodoc
 Future<Map<String, dynamic>> contextDevice() async {
   try {
     return Platform.isAndroid ? _androidDevice() : _iosDevice();
   } catch (e, s) {
-    debugError(e, s);
+    Debug().error(e, s);
 
     return <String, dynamic>{};
   }

@@ -1,6 +1,7 @@
 ## [v6.2.1](https://github.com/oakromulo/flutter_analytics/tree/v6.2.1) - 2020-02-14
 
 - Faster/targeted payload parsing.
+- All debug messages are now bypassable at setup time.
 
 ## [v6.1.1](https://github.com/oakromulo/flutter_analytics/tree/v6.1.1) - 2020-02-13
 

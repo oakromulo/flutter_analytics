@@ -10,8 +10,8 @@ import 'package:path_provider/path_provider.dart'
 import 'package:uuid/uuid.dart' show Uuid;
 
 import '../config/config.dart' show Config;
+import '../debug/debug.dart' show Debug;
 import '../event/event.dart' show Event, EventBuffer;
-import '../util/util.dart' show debugError;
 
 /// @nodoc
 class Store {
@@ -20,7 +20,7 @@ class Store {
 
   Store._internal() {
     _hasInit = _init();
-    _buffer = EventBuffer()..enqueue(Event(_onSetup)).catchError(debugError);
+    _buffer = EventBuffer()..enqueue(Event(_onSetup)).catchError(Debug().error);
   }
 
   static final _store = Store._internal();
@@ -83,14 +83,14 @@ class Store {
     try {
       return await _buffer.enqueue(Event(() => _onGet(key))) as String;
     } catch (e, s) {
-      debugError(e, s);
+      Debug().error(e, s);
 
       return null;
     }
   }
 
   Future<void> _set(String key, Future<String> val) =>
-      _buffer.enqueue(Event(() => _onSet(key, val))).catchError(debugError);
+      _buffer.enqueue(Event(() => _onSet(key, val))).catchError(Debug().error);
 
   Future<String> _onGet(String key) async {
     String value;

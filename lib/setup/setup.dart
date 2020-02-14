@@ -8,9 +8,9 @@ import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 import 'package:http/http.dart' show post, Response;
 
 import '../config/config.dart' show Config;
+import '../debug/debug.dart' show Debug;
 import '../encoder/encoder.dart' show Encoder;
 import '../store/store.dart' show Store;
-import '../util/util.dart' show debugError, debugLog;
 
 /// @nodoc
 class Setup {
@@ -36,8 +36,10 @@ class Setup {
   List<PersistentQueue> get queues => _queues;
 
   Future<bool> _setup(SetupParams params) async {
+    params.debug ? Debug().enable() : Debug().disable();
+
     await Setup._downloadConfig(params.configUrl);
-    debugLog(Config());
+    Debug().log(Config());
 
     _destinations = Setup._dedup(Config().destinations, params.destinations);
     Setup._validateDestinations(_destinations);
@@ -60,10 +62,10 @@ class Setup {
 
       await Config().download(url);
 
-      debugLog('remote config fetched successfully');
+      Debug().log('remote config fetched successfully');
     } catch (e, s) {
-      debugLog('remote config could not be downloaded this time');
-      debugError(e, s);
+      Debug().log('remote config could not be downloaded this time');
+      Debug().error(e, s);
     }
   }
 
@@ -77,7 +79,7 @@ class Setup {
 
     await pq.ready;
 
-    debugLog('local buffer created succesfully for destination:\n$url');
+    Debug().log('local buffer created succesfully for destination:\n$url');
 
     return pq;
   }
@@ -108,12 +110,12 @@ class Setup {
             // completely ignore callback errors on this scope
           }
 
-          debugLog('an analytics batch got succesfully flushed to:\n$url');
+          Debug().log('an analytics batch got succesfully flushed to:\n$url');
 
           return true;
         } catch (e, s) {
-          debugLog('an analytics batch could not be flushed to:\n$url');
-          debugError(e, s);
+          Debug().log('an analytics batch could not be flushed to:\n$url');
+          Debug().error(e, s);
 
           return false;
         }
@@ -144,10 +146,18 @@ class Setup {
 /// @nodoc
 class SetupParams {
   /// @nodoc
-  SetupParams([this.configUrl, this.destinations, this.onFlush, this.orgId]);
+  SetupParams(
+      [this.configUrl,
+      this.debug,
+      this.destinations,
+      this.onFlush,
+      this.orgId]);
 
   /// @nodoc
   final String configUrl;
+
+  /// @nodoc
+  final bool debug;
 
   /// @nodoc
   final List<String> destinations;

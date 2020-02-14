@@ -12,11 +12,11 @@ library flutter_analytics;
 import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 
 import './context/context_location.dart' show ContextLocation;
+import './debug/debug.dart' show Debug;
 import './event/event.dart' show Event, EventBuffer;
 import './lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
-import './util/util.dart' show debugError, debugLog;
 
 export './parser/parser.dart' show AnalyticsParser;
 
@@ -60,7 +60,7 @@ class Analytics {
   /// previous logging calls go through on the action buffer.
   Future<void> flush([OnFlush onFlush]) => _buffer
       .enqueue(Event(() => _onFlushEvent(onFlush)))
-      .catchError(debugError);
+      .catchError(Debug().error);
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
   Future<void> group(String groupId, [dynamic traits]) =>
@@ -89,19 +89,22 @@ class Analytics {
   ///
   /// Params:
   /// - [configUrl]: remote url to load OTA settings for analytics
+  /// - [debug]: disable all [Analytics] debug messages when `false`
   /// - [destinations]: list of POST endpoints able to receive analytics
   /// - [onFlush]: callback to be called after every event batch being flushed
   /// - [orgId]: unique identifier for the top-level org in analytics events
   Future<void> setup(
       {String configUrl,
+      bool debug = true,
       List<String> destinations,
       OnBatchFlush onFlush,
       String orgId}) {
-    final setupParams = SetupParams(configUrl, destinations, onFlush, orgId);
+    final setupParams =
+        SetupParams(configUrl, debug, destinations, onFlush, orgId);
 
     return _buffer
         .enqueue(Event(() => _onSetupEvent(setupParams)))
-        .catchError(debugError);
+        .catchError(Debug().error);
   }
 
   /// Logs an [event] and its respective [properties].
@@ -115,8 +118,9 @@ class Analytics {
     AppLifecycle().state = state;
   }
 
-  Future<void> _log(Segment segment) =>
-      _buffer.enqueue(Event(() => _onLogEvent(segment))).catchError(debugError);
+  Future<void> _log(Segment segment) => _buffer
+      .enqueue(Event(() => _onLogEvent(segment)))
+      .catchError(Debug().error);
 
   void _onAppLifecycleState(AppLifecycleState state) {
     if (_setup == null) {
@@ -135,7 +139,7 @@ class Analytics {
   Future<void> _onFlushEvent(OnFlush onFlush) async {
     if (enabled && _setup != null) {
       for (final queue in _setup.queues) {
-        await queue.flush(onFlush).catchError(debugError);
+        await queue.flush(onFlush).catchError(Debug().error);
       }
     }
   }
@@ -149,7 +153,7 @@ class Analytics {
       final payload = await segment.toMap();
 
       for (final queue in _setup.queues) {
-        await queue.push(payload).catchError(debugError);
+        await queue.push(payload).catchError(Debug().error);
       }
     }
   }
@@ -159,6 +163,6 @@ class Analytics {
     await setup.ready;
 
     _setup = setup;
-    debugLog('successful setup');
+    Debug().log('successful setup');
   }
 }
