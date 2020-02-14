@@ -8,7 +8,7 @@ class Debug {
   /// @nodoc
   factory Debug() => _debug;
 
-  Debug._internal() : _enabled = true;
+  Debug._internal() : _enabled = false;
 
   bool _enabled;
 
