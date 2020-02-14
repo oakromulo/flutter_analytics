@@ -1,5 +1,4 @@
 // ignore_for_file: public_member_api_docs
-
 import 'package:flutter/material.dart';
 import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
 
@@ -36,14 +35,18 @@ class ExampleApp extends StatefulWidget {
 
 class ExampleAppState extends State<ExampleApp> with WidgetsBindingObserver {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text(runExample()),
-        ),
-      ),
-    );
+  Widget build(context) {
+    return FutureBuilder(
+        future: runExample(),
+        builder: (context, snapshot) {
+          return MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: Text(snapshot.data ?? 'hold on'),
+              ),
+            ),
+          );
+        });
   } // build
 
   @override
@@ -60,12 +63,11 @@ class ExampleAppState extends State<ExampleApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    Analytics().requestPermission();
   }
 
-  String runExample() {
+  Future<String> runExample() async {
     try {
-      example();
+      await Analytics().requestPermission();
 
       return 'Everything fine, see console!';
     } catch (e, s) {
