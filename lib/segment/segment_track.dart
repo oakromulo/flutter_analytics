@@ -8,7 +8,7 @@ import './segment.dart' show Segment, SegmentTypeEnum;
 /// @nodoc
 class Track extends Segment {
   /// @nodoc
-  Track(this.event, [Map<String, dynamic> properties])
+  Track(this.event, [dynamic properties])
       : super(SegmentTypeEnum.TRACK, properties: properties);
 
   /// @nodoc

@@ -6,7 +6,7 @@ import './segment.dart' show Segment, SegmentTypeEnum;
 /// @nodoc
 class Group extends Segment {
   /// @nodoc
-  Group(String groupId, [Map<String, dynamic> traits])
+  Group(String groupId, [dynamic traits])
       : super(SegmentTypeEnum.GROUP, groupId: groupId, traits: traits);
 
   /// @nodoc

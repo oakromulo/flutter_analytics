@@ -1,4 +1,8 @@
-## [v6.1.1](https://github.com/oakromulo/flutter_analytics/tree/v6.1.1) - 2020-02-14
+## [v6.2.1](https://github.com/oakromulo/flutter_analytics/tree/v6.2.1) - 2020-02-14
+
+- Faster/targeted payload parsing.
+
+## [v6.1.1](https://github.com/oakromulo/flutter_analytics/tree/v6.1.1) - 2020-02-13
 
 - [location](https://pub.dev/packages/location) plugin added w/ OTA-adjustable refresh interval
 - Automatic lifecycle tracking removed so that the SDK never fires an implicit event without

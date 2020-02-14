@@ -14,7 +14,6 @@ import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
 import './context/context_location.dart' show ContextLocation;
 import './event/event.dart' show Event, EventBuffer;
 import './lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
-import './parser/parser.dart' show AnalyticsParser;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
 import './util/util.dart' show debugError, debugLog;
@@ -147,7 +146,7 @@ class Analytics {
     }
 
     if (enabled) {
-      final payload = AnalyticsParser(await segment.toMap()).toJson();
+      final payload = await segment.toMap();
 
       for (final queue in _setup.queues) {
         await queue.push(payload).catchError(debugError);

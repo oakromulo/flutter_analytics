@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart' show Uuid;
 
 import '../context/context.dart' show Context;
 import '../lifecycle/lifecycle.dart' show AppLifecycle;
+import '../parser/parser.dart' show AnalyticsParser;
 import '../store/store.dart' show Store;
 import '../util/util.dart' show dartEnv;
 
@@ -27,15 +28,15 @@ abstract class Segment {
   }
 
   /// @nodoc
-  final Map<String, dynamic> properties;
+  final dynamic properties;
 
   /// @nodoc
-  final Map<String, dynamic> traits;
+  final dynamic traits;
 
   /// @nodoc
   final SegmentTypeEnum type;
 
-  static final String _dartEnv = dartEnv();
+  static final _dartEnv = dartEnv();
 
   static String _previousMessageId;
   static String _nextMessageId;
@@ -47,7 +48,8 @@ abstract class Segment {
     final messageId = _nextMessageId ?? Uuid().v4();
     _nextMessageId = Uuid().v4();
 
-    final sdkProps = <String, dynamic>{
+    final props = <String, dynamic>{
+      ...AnalyticsParser(properties ?? traits).toJson(),
       'orgId': await Store().orgId,
       'sdk': <String, dynamic>{
         'appLifecycle':
@@ -66,11 +68,9 @@ abstract class Segment {
       'anonymousId': await Store().anonymousId,
       'context': {...await Context().toMap(), 'groupId': Store().groupId},
       'messageId': messageId,
-      'properties': (properties ?? <String, dynamic>{})..addAll(sdkProps),
+      'properties': props,
       'timestamp': _timestamp,
-      'traits': (traits ?? <String, dynamic>{})
-        ..addAll(sdkProps)
-        ..remove('id'),
+      'traits': props..remove('id'),
       'type': type.toString().split('.').last.toLowerCase(),
       'userId': Store().userId
     };

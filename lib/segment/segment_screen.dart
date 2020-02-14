@@ -8,7 +8,7 @@ import './segment.dart' show Segment, SegmentTypeEnum;
 /// @nodoc
 class Screen extends Segment {
   /// @nodoc
-  Screen(this.name, [Map<String, dynamic> properties])
+  Screen(this.name, [dynamic properties])
       : super(SegmentTypeEnum.SCREEN, properties: properties);
 
   /// @nodoc
