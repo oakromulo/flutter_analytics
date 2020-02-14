@@ -1,3 +1,9 @@
+## [v6.3.2](https://github.com/oakromulo/flutter_analytics/tree/v6.3.2) - 2020-02-15
+
+- Fix [location](https://pub.dev/packages/location) plugin hanging due to either location services
+  disabled (PR [#267](https://github.com/Lyokone/flutterlocation/pull/267)) or race conditions
+  (issue [#281](https://github.com/Lyokone/flutterlocation/issues/281)).
+
 ## [v6.3.1](https://github.com/oakromulo/flutter_analytics/tree/v6.3.1) - 2020-02-14
 
 - SessionId now resets when host application is backgrounded (as long as
@@ -5,12 +11,12 @@
 - [location](https://pub.dev/packages/location) plugin updated to `2.4.0`, aligning Android/iOS gps
   times
 
-## [v6.2.1](https://github.com/oakromulo/flutter_analytics/tree/v6.2.1) - 2020-02-14
+## [v6.2.1](https://github.com/oakromulo/flutter_analytics/tree/v6.2.1) - 2020-02-13
 
 - Faster/targeted payload parsing.
 - All debug messages are now bypassable at setup time.
 
-## [v6.1.1](https://github.com/oakromulo/flutter_analytics/tree/v6.1.1) - 2020-02-13
+## [v6.1.1](https://github.com/oakromulo/flutter_analytics/tree/v6.1.1) - 2020-02-12
 
 - [location](https://pub.dev/packages/location) plugin added w/ OTA-adjustable refresh interval
 - Automatic lifecycle tracking removed so that the SDK never fires an implicit event without
