@@ -95,7 +95,7 @@ class Analytics {
   /// - [orgId]: unique identifier for the top-level org in analytics events
   Future<void> setup(
       {String configUrl,
-      bool debug = true,
+      bool debug = false,
       List<String> destinations,
       OnBatchFlush onFlush,
       String orgId}) {
