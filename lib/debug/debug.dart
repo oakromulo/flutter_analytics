@@ -23,8 +23,13 @@ class Debug {
   void enable() => _enabled = true;
 
   /// @nodoc
-  void error(dynamic e, [dynamic s]) =>
-      _print('flutter_analytics ➲ ERROR:\n$e${s == null ? '' : '\n$s'}\n');
+  void error(dynamic e, [dynamic s]) {
+    if (e == null || e.runtimeType == IgnoreException) {
+      return;
+    }
+
+    _print('flutter_analytics ➲ ERROR:\n$e${s == null ? '' : '\n$s'}\n');
+  }
 
   /// @nodoc
   void log(dynamic msg) =>
@@ -36,3 +41,6 @@ class Debug {
     }
   }
 }
+
+/// @nodoc
+class IgnoreException implements Exception {}
