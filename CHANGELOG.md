@@ -1,3 +1,10 @@
+## [v6.3.1](https://github.com/oakromulo/flutter_analytics/tree/v6.3.1) - 2020-02-14
+
+- SessionId now resets when host application is backgrounded (as long as
+  Analytics::updateAppLifecycleState) is provided
+- [location](https://pub.dev/packages/location) plugin updated to `2.4.0`, aligning Android/iOS gps
+  times
+
 ## [v6.2.1](https://github.com/oakromulo/flutter_analytics/tree/v6.2.1) - 2020-02-14
 
 - Faster/targeted payload parsing.
