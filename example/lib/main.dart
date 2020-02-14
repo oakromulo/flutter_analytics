@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_analytics/flutter_analytics.dart' show Analytics;
 
-void example() {
+Future<void> example() async {
   // initial setup to run once on application lifecycle
   Analytics().setup(destinations: ['http://localhost:3000/analytics']);
 
@@ -19,7 +19,7 @@ void example() {
   Analytics().track('Any Event', {'numProp': 3, 'txtProp': 'pTrack'});
 
   // debug logged events to console (return `true` to bypass `destinations`)
-  Analytics().flush((batch) async {
+  await Analytics().flush((batch) async {
     batch.forEach(print);
 
     return true;
@@ -68,6 +68,7 @@ class ExampleAppState extends State<ExampleApp> with WidgetsBindingObserver {
   Future<String> runExample() async {
     try {
       await Analytics().requestPermission();
+      await example();
 
       return 'Everything fine, see console!';
     } catch (e, s) {
