@@ -1,3 +1,8 @@
+## [v6.4.1](https://github.com/oakromulo/flutter_analytics/tree/v6.4.1) - 2020-02-17
+
+- Adds additional settings at setup time.
+- Minor breaking change: debug toggle moved from setup params directly to Analytics class.
+
 ## [v6.3.4](https://github.com/oakromulo/flutter_analytics/tree/v6.3.4) - 2020-02-17
 
 - Feature: get carrier info when available/possible.
