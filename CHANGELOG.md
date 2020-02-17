@@ -1,3 +1,7 @@
+## [v6.3.4](https://github.com/oakromulo/flutter_analytics/tree/v6.3.4) - 2020-02-17
+
+- Feature: get carrier info when available/possible.
+
 ## [v6.3.3](https://github.com/oakromulo/flutter_analytics/tree/v6.3.3) - 2020-02-17
 
 - Fixes a non-serious bug with NMEA time not being included in the payloads when available.
