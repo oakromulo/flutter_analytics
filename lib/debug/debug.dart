@@ -8,19 +8,14 @@ class Debug {
   /// @nodoc
   factory Debug() => _debug;
 
-  Debug._internal() : _enabled = false;
+  Debug._internal() : enabled = true;
 
-  bool _enabled;
+  /// @nodoc
+  bool enabled;
 
   static final Debug _debug = Debug._internal();
 
   String get _isoNow => DateTime.now().toUtc().toIso8601String();
-
-  /// @nodoc
-  void disable() => _enabled = false;
-
-  /// @nodoc
-  void enable() => _enabled = true;
 
   /// @nodoc
   void error(dynamic e, [dynamic s]) {
@@ -36,7 +31,7 @@ class Debug {
       _print('flutter_analytics ➲ ${msg.toString()} @ $_isoNow\n');
 
   void _print(String msg) {
-    if (!bool.fromEnvironment('dart.vm.product') && _enabled) {
+    if (!bool.fromEnvironment('dart.vm.product') && enabled) {
       debugPrint(msg);
     }
   }

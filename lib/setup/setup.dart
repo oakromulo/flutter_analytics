@@ -36,8 +36,6 @@ class Setup {
   List<PersistentQueue> get queues => _queues;
 
   Future<void> _setup(SetupParams params) async {
-    params.debug ? Debug().enable() : Debug().disable();
-
     Config().settings = params.settings;
     await _downloadConfig(params.configUrl);
     Debug().log(Config());
@@ -149,7 +147,6 @@ class SetupParams {
   /// @nodoc
   SetupParams(
       [this.configUrl,
-      this.debug,
       this.destinations,
       this.onFlush,
       this.orgId,
@@ -157,9 +154,6 @@ class SetupParams {
 
   /// @nodoc
   final String configUrl;
-
-  /// @nodoc
-  final bool debug;
 
   /// @nodoc
   final List<String> destinations;

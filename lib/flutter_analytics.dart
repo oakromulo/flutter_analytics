@@ -33,6 +33,10 @@ class Analytics {
     AppLifecycle().subscribe(_onAppLifecycleState);
   }
 
+  /// Prints informative [Analytics] messages if not `false`. Default is `true`.
+  bool get debug => Debug().enabled;
+  set debug(bool enableDebugging) => Debug().enabled = enableDebugging;
+
   /// Disables data collection entirely if `false`. Default is `true`.
   bool enabled;
 
@@ -98,13 +102,12 @@ class Analytics {
   /// - [settings]: additional/optional [AnalyticsSettings] for fine-tune params
   Future<void> setup(
       {String configUrl,
-      bool debug = false,
       List<String> destinations,
       OnBatchFlush onFlush,
       String orgId,
       AnalyticsSettings settings}) {
     final setupParams =
-        SetupParams(configUrl, debug, destinations, onFlush, orgId, settings);
+        SetupParams(configUrl, destinations, onFlush, orgId, settings);
 
     return _buffer
         .enqueue(Event(() => _onSetupEvent(setupParams)))
