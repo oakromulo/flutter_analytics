@@ -62,7 +62,7 @@ class ContextLocation {
   Map<String, dynamic> toJson() => <String, dynamic>{
         'latitude': _latitude,
         'longitude': _longitude,
-        ..._time == null ? {} : {'time': _time}
+        'time': _time
       };
 
   void _onAppLifecycleState(AppLifecycleState state) {
@@ -92,7 +92,7 @@ class ContextLocation {
       _latitude = locationData.latitude;
       _longitude = locationData.longitude;
 
-      if (locationData.time != null && locationData.time > 1577896536000) {
+      if (locationData.time != null) {
         _time = DateTime.fromMillisecondsSinceEpoch(locationData.time.toInt())
             .toUtc()
             .toIso8601String();
