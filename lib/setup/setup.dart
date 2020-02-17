@@ -10,45 +10,46 @@ import 'package:http/http.dart' show post, Response;
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug;
 import '../encoder/encoder.dart' show Encoder;
+import '../settings/settings.dart' show AnalyticsSettings;
 import '../store/store.dart' show Store;
 
 /// @nodoc
 class Setup {
   /// @nodoc
   Setup(this.params) {
-    _ready = _setup(params);
+    ready = _setup(params);
   }
 
   /// @nodoc
   final SetupParams params;
 
+  /// @nodoc
+  Future<void> ready;
+
   List<String> _destinations;
-  Future<bool> _ready;
   List<PersistentQueue> _queues;
 
   /// @nodoc
   List<String> get destinations => _destinations;
 
   /// @nodoc
-  Future<bool> get ready => _ready;
-
-  /// @nodoc
   List<PersistentQueue> get queues => _queues;
 
-  Future<bool> _setup(SetupParams params) async {
+  Future<void> _setup(SetupParams params) async {
     params.debug ? Debug().enable() : Debug().disable();
 
-    await Setup._downloadConfig(params.configUrl);
+    Config().settings = params.settings;
+    await _downloadConfig(params.configUrl);
     Debug().log(Config());
 
-    _destinations = Setup._dedup(Config().destinations, params.destinations);
-    Setup._validateDestinations(_destinations);
+    _destinations = _dedup(Config().destinations, params.destinations);
+    _validateDestinations(_destinations);
+    Debug().log('destinations: $_destinations');
 
-    await Setup._resetOrgId(params.orgId);
+    final orgId = await _resetOrgId(params.orgId);
+    Debug().log('orgId: $orgId');
 
-    _queues = await Setup._initQueues(_destinations, params.onFlush);
-
-    return true;
+    _queues = await _initQueues(_destinations, params.onFlush);
   }
 
   static List<String> _dedup(List<String> a, List<String> b) =>
@@ -72,7 +73,7 @@ class Setup {
   static Future<PersistentQueue> _initQueue(
       String url, OnBatchFlush onBatchFlush) async {
     final pq = PersistentQueue(url.hashCode.toString(),
-        onFlush: Setup._onFlush(url, onBatchFlush),
+        onFlush: _onFlush(url, onBatchFlush),
         flushAt: Config().flushAtLength,
         flushTimeout: Config().flushAtDuration,
         maxLength: Config().maxQueueLength);
@@ -89,7 +90,7 @@ class Setup {
     final queues = <PersistentQueue>[];
 
     for (final url in destinations) {
-      queues.add(await Setup._initQueue(url, onBatchFlush));
+      queues.add(await _initQueue(url, onBatchFlush));
     }
 
     return queues;
@@ -101,7 +102,7 @@ class Setup {
           final encoder = Encoder(input);
 
           if (encoder.batch.isNotEmpty) {
-            Setup._validatePost(await Setup._post(url, encoder.toString()));
+            _validatePost(await _post(url, encoder.toString()));
           }
 
           try {
@@ -125,9 +126,9 @@ class Setup {
           [Duration timeout = const Duration(seconds: 60)]) =>
       post(url, body: body, encoding: AsciiCodec()).timeout(timeout);
 
-  static Future<void> _resetOrgId(String orgId) async {
+  static Future<String> _resetOrgId(String orgId) {
     Store().orgId = Future.value(orgId);
-    await Store().orgId;
+    return Store().orgId;
   }
 
   static void _validateDestinations(List<String> destinations) {
@@ -151,7 +152,8 @@ class SetupParams {
       this.debug,
       this.destinations,
       this.onFlush,
-      this.orgId]);
+      this.orgId,
+      this.settings]);
 
   /// @nodoc
   final String configUrl;
@@ -167,6 +169,9 @@ class SetupParams {
 
   /// @nodoc
   final String orgId;
+
+  /// @nodoc
+  final AnalyticsSettings settings;
 }
 
 /// Type signature alias for the optional `onFlush` event handler.

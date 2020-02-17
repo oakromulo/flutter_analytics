@@ -16,9 +16,11 @@ import './debug/debug.dart' show Debug;
 import './event/event.dart' show Event, EventBuffer;
 import './lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
+import './settings/settings.dart' show AnalyticsSettings;
 import './setup/setup.dart' show Setup, SetupParams, OnBatchFlush;
 
 export './parser/parser.dart' show AnalyticsParser;
+export './settings/settings.dart' show AnalyticsSettings;
 
 /// Static singleton class for single-ended app-wide datalogging.
 class Analytics {
@@ -93,14 +95,16 @@ class Analytics {
   /// - [destinations]: list of POST endpoints able to receive analytics
   /// - [onFlush]: callback to be called after every event batch being flushed
   /// - [orgId]: unique identifier for the top-level org in analytics events
+  /// - [settings]: additional/optional [AnalyticsSettings] for fine-tune params
   Future<void> setup(
       {String configUrl,
       bool debug = false,
       List<String> destinations,
       OnBatchFlush onFlush,
-      String orgId}) {
+      String orgId,
+      AnalyticsSettings settings}) {
     final setupParams =
-        SetupParams(configUrl, debug, destinations, onFlush, orgId);
+        SetupParams(configUrl, debug, destinations, onFlush, orgId, settings);
 
     return _buffer
         .enqueue(Event(() => _onSetupEvent(setupParams)))
