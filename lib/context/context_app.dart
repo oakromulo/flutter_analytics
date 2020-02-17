@@ -11,8 +11,8 @@ Future<Map<String, dynamic>> contextApp() async {
     final packageInfo = await PackageInfo.fromPlatform();
 
     return {
-      'build': packageInfo.buildNumber ?? 0,
-      'name': packageInfo.appName ?? 'n/a',
+      'build': packageInfo.buildNumber,
+      'name': packageInfo.appName,
       'namespace': packageInfo.packageName,
       'version': packageInfo.version
     };
