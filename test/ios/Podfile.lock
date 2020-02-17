@@ -18,6 +18,8 @@ PODS:
     - Flutter
   - Reachability (3.2)
   - SAMKeychain (1.5.3)
+  - sim_info (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
@@ -28,6 +30,7 @@ DEPENDENCIES:
   - location (from `.symlinks/plugins/location/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - sim_info (from `.symlinks/plugins/sim_info/ios`)
 
 SPEC REPOS:
   trunk:
@@ -51,6 +54,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
+  sim_info:
+    :path: ".symlinks/plugins/sim_info/ios"
 
 SPEC CHECKSUMS:
   connectivity: 6e94255659cc86dcbef1d452ad3e0491bb1b3e75
@@ -63,6 +68,7 @@ SPEC CHECKSUMS:
   path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
+  sim_info: 9d8750399533a8eb626fbb7f6fc0776b154de2a6
 
 PODFILE CHECKSUM: baeb49f9e5cd777e2010373d2158078abb9ef90d
 

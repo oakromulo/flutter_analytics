@@ -7,7 +7,7 @@ import './context_app.dart' show contextApp;
 import './context_device.dart' show contextDevice;
 import './context_locale.dart' show contextLocale;
 import './context_location.dart' show ContextLocation;
-import './context_network.dart' show contextNetwork;
+import './context_network.dart' show ContextNetwork;
 import './context_os.dart' show contextOS;
 
 /// @nodoc
@@ -19,7 +19,7 @@ class Context {
         ...await _base,
         'locale': await contextLocale(),
         'location': ContextLocation().toJson(),
-        'network': await contextNetwork()
+        'network': await ContextNetwork().toMap()
       };
 
   static Future<Map<String, dynamic>> _baseSetup() async => {

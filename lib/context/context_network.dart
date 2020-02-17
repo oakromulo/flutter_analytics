@@ -3,21 +3,32 @@ library context_network;
 
 import 'package:connectivity/connectivity.dart'
     show Connectivity, ConnectivityResult;
-
-import '../debug/debug.dart' show Debug;
+import 'package:sim_info/sim_info.dart' show SimInfo;
 
 /// @nodoc
-Future<Map<String, dynamic>> contextNetwork() async {
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
+class ContextNetwork {
+  /// @nodoc
+  ContextNetwork();
 
-    return {
-      'cellular': connectivityResult == ConnectivityResult.mobile,
-      'wifi': connectivityResult == ConnectivityResult.wifi
-    };
-  } catch (e, s) {
-    Debug().error(e, s);
+  static final Future<String> _carrier =
+      SimInfo.getCarrierName.catchError((_) => null);
 
-    return <String, dynamic>{};
+  final _connectivityResult = Connectivity()
+      .checkConnectivity()
+      .catchError((_) => ConnectivityResult.none);
+
+  /// @nodoc
+  Future<Map<String, dynamic>> toMap() async {
+    try {
+      final connectivityResult = await _connectivityResult;
+
+      return <String, dynamic>{
+        'carrier': await _carrier,
+        'cellular': connectivityResult == ConnectivityResult.mobile,
+        'wifi': connectivityResult == ConnectivityResult.wifi
+      };
+    } catch (_) {
+      return <String, dynamic>{'carrier': null, 'cellular': null, 'wifi': null};
+    }
   }
 }
