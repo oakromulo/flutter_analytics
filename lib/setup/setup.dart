@@ -73,7 +73,7 @@ class Setup {
   static Future<PersistentQueue> _initQueue(
       String url, SetupParams params) async {
     final headers = <String, String>{
-      'bucket': params.bucket,
+      'bucket': params.bucket ?? '',
       'organization': await Store().orgId,
       'version': sdkVersion
     };
