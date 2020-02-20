@@ -50,5 +50,11 @@ class EventBuffer {
     return await event.future as T;
   }
 
+  /// @nodoc
+  Future<void> destroy() async {
+    await _subscription.cancel();
+    await _controller.close();
+  }
+
   void _onData(Event event) => _subscription.pause(event.run());
 }

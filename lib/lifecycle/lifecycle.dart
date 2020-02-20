@@ -35,4 +35,7 @@ class AppLifecycle {
   /// @nodoc
   void subscribe(void Function(AppLifecycleState state) onAppLifecycleState) =>
       _subscriptions.add(onAppLifecycleState);
+
+  @override
+  String toString() => _state.toString().split('AppLifecycleState.')[1];
 }

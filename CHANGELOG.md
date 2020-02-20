@@ -1,3 +1,8 @@
+## [v7.0.3](https://github.com/oakromulo/flutter_analytics/tree/v7.0.3) - 2020-02-20
+
+- Improved event metadata synchronicity: segmented asynchronous data now starts to be fetched at
+  trigger time instead of at a later stage.
+
 ## [v7.0.2](https://github.com/oakromulo/flutter_analytics/tree/v7.0.2) - 2020-02-20
 
 - Updated documentation.
