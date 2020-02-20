@@ -2,22 +2,6 @@
 
 A barebones Analytics SDK to collect anonymous metadata from flutter apps.
 
-## Installation
-
-Add dependency to `pubspec.yaml`:
-
-```yaml
-dependencies:
-  ...
-  flutter_analytics: ^7.0.1
-```
-
-Run in your terminal:
-
-```sh
-flutter packages get
-```
-
 ## Usage
 
 ```dart

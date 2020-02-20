@@ -1,3 +1,7 @@
+## [v7.0.2](https://github.com/oakromulo/flutter_analytics/tree/v7.0.2) - 2020-02-20
+
+- Updated documentation.
+
 ## [v7.0.1](https://github.com/oakromulo/flutter_analytics/tree/v7.0.1) - 2020-02-20
 
 - Updated dependencies.
