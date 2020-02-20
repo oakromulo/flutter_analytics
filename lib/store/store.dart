@@ -191,9 +191,9 @@ class Store {
           .create(recursive: true)
           .then((f) => f.writeAsString(value ?? ''))
           .catchError(Debug().error);
+
+      return value;
     } catch (_) {
-      // do nothing
-    } finally {
       return value;
     }
   }
