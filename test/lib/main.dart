@@ -45,8 +45,9 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
       assert(batch.length == 4);
 
       for (int i = 0; i < 4; ++i) {
-        final evt = batch[i];
-        final Map<String, dynamic> props = evt['properties'] ?? evt['traits'];
+        final evt = batch[i] as Map<String, dynamic>;
+        final props =
+            (evt['properties'] ?? evt['traits']) as Map<String, dynamic>;
 
         assertEventCore(evt);
 
@@ -55,7 +56,7 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
           assert(evt['context']['groupId'] == 'myGroup');
           assert(evt['userId'] == 'myUser');
 
-          final Map<String, dynamic> firstSdk = batch.first['traits']['sdk'];
+          final firstSdk = batch.first['traits']['sdk'] as Map<String, dynamic>;
           assert(props['sdk']['sessionId'] == firstSdk['sessionId']);
         }
 
@@ -159,7 +160,7 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
 
     while (_evtCnt < totalTracks - 100) {
       print('event count: $_evtCnt');
-      await Future.delayed(Duration(seconds: 1));
+      await Future<void>.delayed(Duration(seconds: 1));
     }
 
     await Analytics().flush();
@@ -270,31 +271,33 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
   void assertEventCore(Map<String, dynamic> event) {
     assert(event['anonymousId'].toString().length == 64);
 
-    final Map<String, dynamic> context = event['context'];
+    final context = event['context'] as Map<String, dynamic>;
 
     assert(context['app']['build'].toString() == '8');
     assert(context['app']['version'] == '5.6.7');
 
-    final Map<String, dynamic> device = context['device'];
+    final device = context['device'] as Map<String, dynamic>;
 
     if (Platform.isIOS) {
       assert(device['id'].toString().length == 36);
       assert(device['manufacturer'].toString().toLowerCase() == 'apple');
       assert(device['model'] == 'iPhone');
-      assert(device['name'].contains('iPhone'));
+      assert(device['name'].toString().contains('iPhone'));
       assert(context['os']['name'] == 'iOS');
     }
 
     assert(context['library']['name'] == sdkName);
     assert(context['library']['version'] == sdkVersion);
 
-    assert(context['network']['cellular'] || true);
-    assert(context['network']['wifi'] || true);
+    assert(context['network']['cellular'] as bool || true);
+    assert(context['network']['wifi'] as bool || true);
 
     assert(event['messageId'].toString().length == 36);
-    assert(DateTime.parse(event['timestamp']).isBefore(DateTime.now()));
+    assert(
+        DateTime.parse(event['timestamp'].toString()).isBefore(DateTime.now()));
 
-    final Map<String, dynamic> props = event['properties'] ?? event['traits'];
+    final props =
+        (event['properties'] ?? event['traits']) as Map<String, dynamic>;
 
     assert(props['sdk']['dartEnv'] == 'DEVELOPMENT');
     assert(props['sdk']['sessionId'].toString().length == 36);
