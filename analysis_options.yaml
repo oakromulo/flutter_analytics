@@ -3,8 +3,8 @@ analyzer:
     implicit-casts: false
     implicit-dynamic: false
   exclude:
-    - example/**
-    - test/**
+    - example/**/*
+    - test/**/*
 
 linter:
   rules:

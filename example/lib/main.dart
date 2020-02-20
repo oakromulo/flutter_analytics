@@ -42,7 +42,7 @@ class ExampleAppState extends State<ExampleApp> with WidgetsBindingObserver {
           return MaterialApp(
             home: Scaffold(
               body: Center(
-                child: Text(snapshot.data ?? 'hold on'),
+                child: Text(snapshot.data as String ?? 'hold on'),
               ),
             ),
           );
@@ -68,7 +68,7 @@ class ExampleAppState extends State<ExampleApp> with WidgetsBindingObserver {
   Future<String> runExample() async {
     try {
       await Analytics().requestPermission();
-      await Future.delayed(Duration(seconds: 5));
+      await Future<void>.delayed(Duration(seconds: 5));
       await example();
 
       return 'Everything fine, see console!';
