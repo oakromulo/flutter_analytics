@@ -1,3 +1,7 @@
+## [v7.1.1](https://github.com/oakromulo/flutter_analytics/tree/v7.1.1) - 2020-02-20
+
+- Optional `bucket` header defined at setup time to simplify post-processing of analytics events.
+
 ## [v7.0.3](https://github.com/oakromulo/flutter_analytics/tree/v7.0.3) - 2020-02-20
 
 - Improved event metadata synchronicity: segmented asynchronous data now starts to be fetched at

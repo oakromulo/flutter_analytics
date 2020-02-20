@@ -5,7 +5,7 @@ library version_control;
 const String sdkName = 'flutter_analytics';
 
 /// @nodoc
-const String sdkVersion = '7.0.3';
+const String sdkVersion = '7.1.1';
 
 /// @nodoc
 const sdkPackage = <String, dynamic>{'name': sdkName, 'version': sdkVersion};
