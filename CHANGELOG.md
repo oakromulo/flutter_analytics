@@ -1,3 +1,14 @@
+## [v7.0.1](https://github.com/oakromulo/flutter_analytics/tree/v7.0.1) - 2020-02-20
+
+- Updated dependencies.
+- Persistent ContextTraits added to improve Segment portability and allow per-event user
+  segmentation.
+- New headers `{'organization': orgId, 'version': sdkVersion}` added to allow custom server-side
+  processing before attempting to decode batches.
+- Strong mode compliance.
+- Reduced direct dependencies: `localstorage` and `synchronized` removed.
+- Non-persistent `sessionId` and `sessionTimeout` to better reflect real world usage.
+
 ## [v6.4.1](https://github.com/oakromulo/flutter_analytics/tree/v6.4.1) - 2020-02-17
 
 - Adds additional settings at setup time.

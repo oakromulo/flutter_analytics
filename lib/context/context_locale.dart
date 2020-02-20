@@ -2,7 +2,6 @@
 library context_locale;
 
 import 'package:devicelocale/devicelocale.dart' show Devicelocale;
-
 import '../debug/debug.dart' show Debug;
 
 /// @nodoc

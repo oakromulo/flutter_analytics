@@ -1,8 +1,8 @@
 /// @nodoc
 library context;
 
+import '../store/store.dart' show Store;
 import '../version_control.dart' show sdkPackage;
-
 import './context_app.dart' show contextApp;
 import './context_device.dart' show contextDevice;
 import './context_locale.dart' show contextLocale;
@@ -15,14 +15,19 @@ class Context {
   static final Future<Map<String, dynamic>> _base = _baseSetup();
 
   /// @nodoc
-  Future<Map<String, dynamic>> toMap() async => {
+  static Map<String, dynamic> traits;
+
+  /// @nodoc
+  Future<Map<String, dynamic>> toMap() async => <String, dynamic>{
         ...await _base,
+        'groupId': await Store().groupId,
         'locale': await contextLocale(),
         'location': ContextLocation().toJson(),
-        'network': await ContextNetwork().toMap()
+        'network': await ContextNetwork().toMap(),
+        'traits': traits ?? <String, dynamic>{}
       };
 
-  static Future<Map<String, dynamic>> _baseSetup() async => {
+  static Future<Map<String, dynamic>> _baseSetup() async => <String, dynamic>{
         'app': await contextApp(),
         'device': await contextDevice(),
         'library': sdkPackage,

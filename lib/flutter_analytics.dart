@@ -9,11 +9,12 @@
 /// requests is defined OTA, as well as a few other settings.
 library flutter_analytics;
 
-import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
+import 'package:flutter_persistent_queue/flutter_persistent_queue.dart'
+    show OnFlush;
 
 import './context/context_location.dart' show ContextLocation;
 import './debug/debug.dart' show Debug;
-import './event/event.dart' show Event, EventBuffer;
+import './event/event.dart' show EventBuffer;
 import './lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 import './segment/segment.dart' show Group, Identify, Screen, Segment, Track;
 import './settings/settings.dart' show AnalyticsSettings;
@@ -64,9 +65,8 @@ class Analytics {
   /// p.s.2 flushing might not start immediately as the flush operation (just as
   /// all other public methods) gets scheduled to occur sequentially after all
   /// previous logging calls go through on the action buffer.
-  Future<void> flush([OnFlush onFlush]) => _buffer
-      .enqueue(Event(() => _onFlushEvent(onFlush)))
-      .catchError(Debug().error);
+  Future<void> flush([OnFlush onFlush]) =>
+      _buffer.defer(() => _flush(onFlush)).catchError(Debug().error);
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
   Future<void> group(String groupId, [dynamic traits]) =>
@@ -109,9 +109,7 @@ class Analytics {
     final setupParams =
         SetupParams(configUrl, destinations, onFlush, orgId, settings);
 
-    return _buffer
-        .enqueue(Event(() => _onSetupEvent(setupParams)))
-        .catchError(Debug().error);
+    return _buffer.defer(() => _init(setupParams)).catchError(Debug().error);
   }
 
   /// Logs an [event] and its respective [properties].
@@ -125,9 +123,26 @@ class Analytics {
     AppLifecycle().state = state;
   }
 
-  Future<void> _log(Segment segment) => _buffer
-      .enqueue(Event(() => _onLogEvent(segment)))
-      .catchError(Debug().error);
+  Future<void> _flush(OnFlush onFlush) async {
+    if (!enabled || _setup == null) {
+      return;
+    }
+
+    for (final queue in await _setup.queues) {
+      await queue.flush(onFlush).catchError(Debug().error);
+    }
+  }
+
+  Future<void> _init(SetupParams setupParams) async {
+    final setup = Setup(setupParams);
+    await setup.ready;
+
+    _setup = setup;
+    Debug().log('successful setup');
+  }
+
+  Future<void> _log(Segment segment) =>
+      _buffer.defer(() => _push(segment)).catchError(Debug().error);
 
   void _onAppLifecycleState(AppLifecycleState state) {
     if (_setup == null) {
@@ -143,33 +158,19 @@ class Analytics {
     }
   }
 
-  Future<void> _onFlushEvent(OnFlush onFlush) async {
-    if (enabled && _setup != null) {
-      for (final queue in _setup.queues) {
-        await queue.flush(onFlush).catchError(Debug().error);
-      }
-    }
-  }
-
-  Future<void> _onLogEvent(Segment segment) async {
+  Future<void> _push(Segment segment) async {
     if (_setup == null) {
       throw Exception('AnalyticsNotReady');
     }
 
-    if (enabled) {
-      final payload = await segment.toMap();
-
-      for (final queue in _setup.queues) {
-        await queue.push(payload).catchError(Debug().error);
-      }
+    if (!enabled) {
+      return;
     }
-  }
 
-  Future<void> _onSetupEvent(SetupParams setupParams) async {
-    final setup = Setup(setupParams);
-    await setup.ready;
+    final payload = await segment.toMap();
 
-    _setup = setup;
-    Debug().log('successful setup');
+    for (final queue in await _setup.queues) {
+      await queue.push(payload).catchError(Debug().error);
+    }
   }
 }

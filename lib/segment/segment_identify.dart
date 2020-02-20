@@ -1,16 +1,38 @@
 /// @nodoc
 library segment_identify;
 
-import './segment.dart' show Segment, SegmentTypeEnum;
+import '../context/context.dart' show Context;
+import '../parser/parser.dart' show AnalyticsParser;
+import '../store/store.dart' show Store;
+import './segment.dart' show Segment;
 
 /// @nodoc
 class Identify extends Segment {
   /// @nodoc
   Identify(String userId, [dynamic traits])
-      : super(SegmentTypeEnum.IDENTIFY, traits: traits, userId: userId);
+      : _setUserId = Store().setUserId(userId),
+        super(traits) {
+    Context.traits = <String, dynamic>{
+      ...AnalyticsParser(traits).toJson(),
+      'id': userId
+    };
+  }
+
+  final Future<String> _setUserId;
 
   /// @nodoc
   @override
-  Future<Map<String, dynamic>> toMap() async =>
-      (await super.toMap())..remove('properties');
+  Future<Map<String, dynamic>> toMap() async {
+    final userId = await _setUserId;
+
+    final payload = await super.toMap();
+    final traits = payload.remove('properties') as Map<String, dynamic> ??
+        <String, dynamic>{};
+
+    return <String, dynamic>{
+      ...payload,
+      'traits': <String, dynamic>{...traits, 'id': userId},
+      'type': 'identify'
+    };
+  }
 }

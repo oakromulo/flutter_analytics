@@ -48,7 +48,9 @@ class AnalyticsParser {
 
   static List<dynamic> _encodeList(dynamic input) {
     try {
-      return List<dynamic>.of(input).map<dynamic>(_encode).toList();
+      return List<dynamic>.of(input as Iterable<dynamic>)
+          .map<dynamic>(_encode)
+          .toList();
     } catch (_) {
       return <dynamic>[];
     }
@@ -64,9 +66,10 @@ class AnalyticsParser {
         return _encodeMap(input.toJson());
       }
 
+      final _input = Map<String, dynamic>.of(input as Map<String, dynamic>);
       final _output = <String, dynamic>{};
 
-      for (final entry in Map<String, dynamic>.from(input).entries) {
+      for (final entry in _input.entries) {
         final key = camelCase(entry.key);
 
         if (key != null) {
@@ -90,7 +93,7 @@ class AnalyticsParser {
 
   static bool _isList(dynamic input) {
     try {
-      return List<dynamic>.from(input) is List<dynamic>;
+      return List<dynamic>.of(input as Iterable<dynamic>) is List<dynamic>;
     } catch (_) {
       return false;
     }
@@ -98,7 +101,9 @@ class AnalyticsParser {
 
   static bool _isMap(dynamic input) {
     try {
-      return Map<String, dynamic>.from(input) is Map<String, dynamic>;
+      final _input = Map<String, dynamic>.of(input as Map<String, dynamic>);
+
+      return _input is Map<String, dynamic>;
     } catch (_) {
       return false;
     }

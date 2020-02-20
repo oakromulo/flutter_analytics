@@ -2,13 +2,10 @@
 library context_location;
 
 import 'dart:async' show TimeoutException;
-
 import 'package:location/location.dart' show Location, LocationAccuracy;
-import 'package:synchronized/synchronized.dart' show Lock;
-
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug, IgnoreException;
-import '../event/event.dart' show Event, EventBuffer;
+import '../event/event.dart' show EventBuffer;
 import '../lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 import '../timers/timers.dart' show PeriodicTimer;
 
@@ -17,9 +14,7 @@ class ContextLocation {
   /// @nodoc
   factory ContextLocation() => _contextLocation;
 
-  ContextLocation._internal()
-      : _buffer = EventBuffer(),
-        _lock = Lock(reentrant: true) {
+  ContextLocation._internal() : _buffer = EventBuffer() {
     _refreshInterval = Config().locationRefreshInterval;
     _timer = PeriodicTimer(_refreshInterval, _onTick)..enable();
 
@@ -29,7 +24,6 @@ class ContextLocation {
   static final _contextLocation = ContextLocation._internal();
 
   final EventBuffer _buffer;
-  final Lock _lock;
 
   double _latitude;
   double _longitude;
@@ -40,23 +34,21 @@ class ContextLocation {
   PeriodicTimer _timer;
 
   /// @nodoc
-  Future<bool> requestPermission() async {
-    try {
-      await _verifySetup(skipPermissions: true);
+  Future<bool> requestPermission() => _buffer.defer(() async {
+        try {
+          await _verifySetup(skipPermissions: true);
 
-      if (_location == null) {
-        throw IgnoreException();
-      }
+          if (_location == null) {
+            throw IgnoreException();
+          }
 
-      return await _lock.synchronized(_location.requestPermission);
-    } on TimeoutException {
-      return false;
-    } catch (e, s) {
-      Debug().error(e, s);
+          return await _location.requestPermission();
+        } catch (e, s) {
+          Debug().error(e, s);
 
-      return false;
-    }
-  }
+          return false;
+        }
+      });
 
   /// @nodoc
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -82,8 +74,8 @@ class ContextLocation {
     try {
       await _verifySetup();
 
-      final locationData = await _lock.synchronized(_location.getLocation,
-          timeout: _refreshInterval);
+      final locationData =
+          await _location.getLocation().timeout(_refreshInterval);
 
       if (locationData?.latitude == null || locationData?.longitude == null) {
         throw IgnoreException();
@@ -108,7 +100,7 @@ class ContextLocation {
     final refreshInterval = Config().locationRefreshInterval;
 
     if (_refreshInterval.compareTo(refreshInterval) == 0) {
-      _buffer.enqueue(Event(_refreshLocation));
+      _buffer.defer(_refreshLocation);
     } else {
       _refreshInterval = refreshInterval;
       _timer.disable();
@@ -117,27 +109,25 @@ class ContextLocation {
   }
 
   Future<void> _verifySetup({bool skipPermissions = false}) async {
-    await _lock.synchronized(() async {
-      final location = _location ?? Location();
+    final location = _location ?? Location();
 
-      if (!(await location.serviceEnabled())) {
+    if (!(await location.serviceEnabled())) {
+      throw IgnoreException();
+    }
+
+    if (!skipPermissions) {
+      if (!(await location.hasPermission())) {
         throw IgnoreException();
       }
+    }
 
-      if (!skipPermissions) {
-        if (!(await location.hasPermission())) {
-          throw IgnoreException();
-        }
-      }
+    if (_location != null) {
+      return;
+    }
 
-      if (_location != null) {
-        return;
-      }
+    await location.changeSettings(accuracy: LocationAccuracy.POWERSAVE);
+    _location = location;
 
-      await location.changeSettings(accuracy: LocationAccuracy.POWERSAVE);
-      _location = location;
-
-      _timer.enable();
-    }, timeout: _refreshInterval);
+    _timer.enable();
   }
 }

@@ -2,9 +2,7 @@
 library context_os;
 
 import 'dart:io' show Platform;
-
 import 'package:device_info/device_info.dart' show DeviceInfoPlugin;
-
 import '../debug/debug.dart' show Debug;
 
 /// @nodoc
@@ -24,11 +22,17 @@ Future<Map<String, dynamic>> _contextAndroid() async {
   final release = info.version.release;
   final apiLevel = info.version.sdkInt;
 
-  return {'name': 'Android', 'version': '$release (API level $apiLevel)'};
+  return <String, dynamic>{
+    'name': 'Android',
+    'version': '$release (API level $apiLevel)'
+  };
 }
 
 Future<Map<String, dynamic>> _contextIOS() async {
   final info = await DeviceInfoPlugin().iosInfo;
 
-  return {'name': info.systemName, 'version': info.systemVersion};
+  return <String, dynamic>{
+    'name': info.systemName,
+    'version': info.systemVersion
+  };
 }

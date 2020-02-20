@@ -1,7 +1,8 @@
 /// @nodoc
 library event;
 
-import 'dart:async' show Completer, StreamController, StreamSubscription;
+import 'dart:async'
+    show Completer, FutureOr, StreamController, StreamSubscription;
 
 /// @nodoc
 class Event {
@@ -9,15 +10,15 @@ class Event {
   Event(this._handler);
 
   final _completer = Completer<dynamic>();
-  final Future<dynamic> Function() _handler;
+  final FutureOr<dynamic> Function() _handler;
 
   /// @nodoc
-  Future<dynamic> get future => _completer.future;
+  Future get future => _completer.future;
 
   /// @nodoc
-  Future<dynamic> run() async {
+  Future run() async {
     try {
-      final res = await _handler();
+      final dynamic res = await Future<dynamic>.sync(_handler);
 
       _completer.complete(res);
 
@@ -41,10 +42,12 @@ class EventBuffer {
   StreamSubscription<Event> _subscription;
 
   /// @nodoc
-  Future<dynamic> enqueue(Event event) {
+  Future<T> defer<T>(FutureOr<T> Function() function) async {
+    final Event event = Event(function);
+
     _controller.add(event);
 
-    return event.future;
+    return await event.future as T;
   }
 
   void _onData(Event event) => _subscription.pause(event.run());

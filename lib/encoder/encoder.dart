@@ -26,7 +26,9 @@ class Encoder {
 
   static List<Map<String, dynamic>> _fill(List<dynamic> input) {
     try {
-      final _batch = List<dynamic>.of(input ?? []).cast<Map<String, dynamic>>();
+      final _input = List<dynamic>.of(input ?? <dynamic>[]);
+      final _batch = _input.cast<Map<String, dynamic>>();
+
       final sentAt = DateTime.now().toUtc().toIso8601String();
 
       for (final event in _batch) {
@@ -35,7 +37,7 @@ class Encoder {
 
       return _batch;
     } catch (_) {
-      return [];
+      return <Map<String, dynamic>>[];
     }
   }
 }
