@@ -49,7 +49,7 @@ class Setup {
     await Store().setOrgId(params.orgId);
     Debug().log(Store());
 
-    _queues = await _initQueues(_destinations, params.onFlush);
+    _queues = await _initQueues(_destinations, params);
   }
 
   static List<String> _dedup(List<String> a, List<String> b) =>
@@ -71,14 +71,15 @@ class Setup {
   }
 
   static Future<PersistentQueue> _initQueue(
-      String url, OnBatchFlush onBatchFlush) async {
+      String url, SetupParams params) async {
     final headers = <String, String>{
+      'bucket': params.bucket,
       'organization': await Store().orgId,
       'version': sdkVersion
     };
 
     final pq = PersistentQueue(url.hashCode.toString(),
-        onFlush: _onFlush(url, onBatchFlush, headers),
+        onFlush: _onFlush(url, params.onFlush, headers),
         flushAt: Config().flushAtLength,
         flushTimeout: Config().flushAtDuration,
         maxLength: Config().maxQueueLength,
@@ -92,11 +93,11 @@ class Setup {
   }
 
   static Future<List<PersistentQueue>> _initQueues(
-      List<String> destinations, OnBatchFlush onBatchFlush) async {
+      List<String> destinations, SetupParams params) async {
     final queues = <PersistentQueue>[];
 
     for (final url in destinations) {
-      queues.add(await _initQueue(url, onBatchFlush));
+      queues.add(await _initQueue(url, params));
     }
 
     return queues;
@@ -151,11 +152,15 @@ class Setup {
 class SetupParams {
   /// @nodoc
   SetupParams(
-      [this.configUrl,
+      [this.bucket,
+      this.configUrl,
       this.destinations,
       this.onFlush,
       this.orgId,
       this.settings]);
+
+  /// @nodoc
+  final String bucket;
 
   /// @nodoc
   final String configUrl;

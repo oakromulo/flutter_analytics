@@ -94,6 +94,7 @@ class Analytics {
   /// thrown just as if [group] preceded the initial [setup].
   ///
   /// Params:
+  /// - [bucket]: optional post-processing server-side bucket to store analytics
   /// - [configUrl]: remote url to load OTA settings for analytics
   /// - [debug]: disable all [Analytics] debug messages when `false`
   /// - [destinations]: list of POST endpoints able to receive analytics
@@ -101,13 +102,14 @@ class Analytics {
   /// - [orgId]: unique identifier for the top-level org in analytics events
   /// - [settings]: additional/optional [AnalyticsSettings] for fine-tune params
   Future<void> setup(
-      {String configUrl,
+      {String bucket,
+      String configUrl,
       List<String> destinations,
       OnBatchFlush onFlush,
       String orgId,
       AnalyticsSettings settings}) {
     final setupParams =
-        SetupParams(configUrl, destinations, onFlush, orgId, settings);
+        SetupParams(bucket, configUrl, destinations, onFlush, orgId, settings);
 
     return _buffer.defer(() => _init(setupParams)).catchError(Debug().error);
   }
