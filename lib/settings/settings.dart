@@ -1,3 +1,6 @@
+/// @nodoc
+library settings;
+
 /// Allows fine customization of [Analytics] constants at `Setup` time.
 class AnalyticsSettings {
   /// Pass additional parameters to [Analytics].

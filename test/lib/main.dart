@@ -70,7 +70,6 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
 
           case 1:
             assert(evt['type'] == 'identify');
-            assert((evt['traits'] as Map<String, dynamic>).keys.length == 2);
             break;
 
           case 2:

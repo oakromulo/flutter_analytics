@@ -4,14 +4,13 @@ library store;
 import 'dart:io' show File;
 
 import 'package:flutter_udid/flutter_udid.dart' show FlutterUdid;
-import 'package:localstorage/localstorage.dart' show LocalStorage;
 import 'package:path_provider/path_provider.dart'
     show getApplicationDocumentsDirectory;
 import 'package:uuid/uuid.dart' show Uuid;
 
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug;
-import '../event/event.dart' show Event, EventBuffer;
+import '../event/event.dart' show EventBuffer;
 import '../lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
 
 /// @nodoc
@@ -19,67 +18,162 @@ class Store {
   /// @nodoc
   factory Store() => _store;
 
-  Store._internal() {
-    _buffer = EventBuffer()..enqueue(Event(_onSetup)).catchError(Debug().error);
+  Store._internal() : _buffer = EventBuffer() {
+    _buffer.defer<void>(_init);
   }
 
   static final _store = Store._internal();
 
-  EventBuffer _buffer;
-  LocalStorage _storage;
+  final EventBuffer _buffer;
 
+  String _anonymousId;
   String _groupId;
+  String _orgId;
   String _path;
+  String _sessionId;
+  DateTime _sessionTimeout;
   String _userId;
 
   /// @nodoc
-  Future<String> get anonymousId async =>
-      await _get('anonymousId') ?? await _resetAnonymousId();
+  Future<String> get anonymousId => _buffer.defer<String>(() => _anonymousId);
 
   /// @nodoc
-  String get groupId => (_groupId ?? '').isNotEmpty ? _groupId : null;
-
-  set groupId(String id) {
-    if (id != groupId) {
-      _groupId = id;
-
-      File('$_path/group_id')
-          .create(recursive: true)
-          .then((file) => file.writeAsString(id ?? ''))
-          .catchError((_) => null);
-    }
-  }
+  Future<String> get groupId => _buffer.defer<String>(() => _groupId);
 
   /// @nodoc
-  Future<String> get orgId => _get('orgId');
-  set orgId(Future<String> orgId) => _set('orgId', orgId);
+  Future<String> get orgId => _buffer.defer<String>(() => _orgId);
 
   /// @nodoc
-  Future<String> get sessionId async {
-    if (await _isSessionExpired()) {
-      await _resetSession();
-    }
-
-    return _get('sessionId');
-  }
+  Future<String> get userId => _buffer.defer<String>(() => _userId);
 
   /// @nodoc
-  String get userId => (_userId ?? '').isNotEmpty ? _userId : null;
+  Future<String> get sessionId => _buffer.defer<String>(() async {
+        if (_isSessionExpired()) {
+          await _resetSession();
+        }
 
-  set userId(String id) {
-    if (id != userId) {
-      _userId = id;
+        return _sessionId;
+      });
 
-      File('$_path/user_id')
-          .create(recursive: true)
-          .then((file) => file.writeAsString(id ?? ''))
-          .catchError((_) => null);
-    }
-  }
+  /// @nodoc
+  Future<String> setGroupId(String id) => _buffer.defer<String>(() async {
+        if ((_groupId ?? '') == (id ?? '')) {
+          return _groupId;
+        }
 
-  Future<String> _get(String key) async {
+        return _groupId = await _write('group_id', id);
+      });
+
+  /// @nodoc
+  Future<String> setOrgId(String id) => _buffer.defer<String>(() async {
+        if ((_orgId ?? '') == (id ?? '')) {
+          return _orgId;
+        }
+
+        return _orgId = await _write('org_id', id);
+      });
+
+  /// @nodoc
+  Future<String> setUserId(String id) => _buffer.defer<String>(() async {
+        if ((_userId ?? '') == (id ?? '')) {
+          return _userId;
+        }
+
+        return _userId = await _write('user_id', id);
+      });
+
+  @override
+  String toString() => '''state:
+    anonymousId: $_anonymousId
+    groupId: $_groupId
+    orgId: $_orgId
+    sessionId: $_sessionId
+    sessionTimeout: ${_strFromDate(_sessionTimeout)}\n''';
+
+  Future<void> _init() async {
     try {
-      return await _buffer.enqueue(Event(() => _onGet(key))) as String;
+      AppLifecycle().subscribe(_onAppLifecycleState);
+
+      _path = (await getApplicationDocumentsDirectory()).path;
+
+      _anonymousId = await _initAnonymousId();
+      _groupId = await _read('group_id');
+      _orgId = await _read('org_id');
+      _userId = await _read('user_id');
+
+      await _resetSession();
+
+      Debug().log('init complete');
+    } catch (e, s) {
+      Debug().error(e, s);
+    }
+  }
+
+  Future<String> _initAnonymousId() async =>
+      (await _read('anonymous_id')) ??
+      (await _write('anonymous_id', await _udid()));
+
+  bool _isSessionExpired() =>
+      _sessionTimeout == null ||
+      DateTime.now().toUtc().isAfter(_sessionTimeout);
+
+  String _nullIfEmpty(String text) => (text ?? '').isNotEmpty ? text : null;
+
+  void _onAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _resetSession();
+    }
+  }
+
+  Future<String> _read(String key) async {
+    try {
+      if ((_path ?? '').isEmpty) {
+        throw null;
+      }
+
+      return File('$_path/__analytics_$key')
+          .readAsString()
+          .then<String>((value) => _nullIfEmpty(value))
+          .catchError((dynamic _) => null);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _resetSession() async {
+    _sessionId = _uuidV4();
+    _sessionTimeout = DateTime.now().toUtc().add(Config().sessionTimeout);
+  }
+
+  String _strFromDate(DateTime date) {
+    try {
+      if (date == null) {
+        throw null;
+      }
+
+      return date.toIso8601String();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String> _udid() async {
+    try {
+      final udid = await FlutterUdid.consistentUdid.catchError(Debug().error);
+
+      if ((udid ?? '').isEmpty) {
+        throw null;
+      }
+
+      return udid;
+    } catch (_) {
+      return _uuidV4();
+    }
+  }
+
+  String _uuidV4() {
+    try {
+      return Uuid().v4();
     } catch (e, s) {
       Debug().error(e, s);
 
@@ -87,88 +181,20 @@ class Store {
     }
   }
 
-  Future _initFiles() async {
+  Future<String> _write(String key, String value) async {
     try {
-      _path = (await getApplicationDocumentsDirectory()).path;
-
-      _groupId ??= await File('$_path/group_id').readAsString();
-      _userId ??= await File('$_path/user_id').readAsString();
-    } catch (_) {
-      // do nothing
-    }
-  }
-
-  Future<bool> _isSessionExpired() async {
-    final t0 = DateTime.tryParse(await _get('sessionStart') ?? '');
-
-    if (t0 == null) {
-      return true;
-    }
-
-    final sessionTimeout = Config().sessionTimeout;
-    return DateTime.now().toUtc().isAfter(t0.add(sessionTimeout));
-  }
-
-  void _onAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _resetSession().catchError(Debug().error);
-    }
-  }
-
-  Future<String> _onGet(String key) async {
-    String value;
-
-    final Map<String, dynamic> item =
-        await _storage.getItem(key) ?? <String, dynamic>{};
-
-    if (item != null && item.containsKey('v') && item['v'] != null) {
-      value = item['v'].toString();
-    }
-
-    return value;
-  }
-
-  Future<void> _onSet(String key, Future<String> val) =>
-      val.then((v) => _storage.setItem(key, {'v': v}));
-
-  Future<void> _onSetup() async {
-    await _initFiles();
-
-    _storage = LocalStorage('__analytics_storage__');
-    await _storage.ready;
-
-    AppLifecycle().subscribe(_onAppLifecycleState);
-  }
-
-  Future<String> _resetAnonymousId() async {
-    final id = await _udid();
-
-    await _set('anonymousId', Future.value(id));
-
-    return id;
-  }
-
-  Future<void> _resetSession() async {
-    final sessionStart = DateTime.now().toUtc().toIso8601String();
-
-    await _set('sessionStart', Future.value(sessionStart));
-    await _set('sessionId', Future.value(Uuid().v4()));
-  }
-
-  Future<void> _set(String key, Future<String> val) =>
-      _buffer.enqueue(Event(() => _onSet(key, val))).catchError(Debug().error);
-
-  Future<String> _udid() async {
-    try {
-      final udid = await FlutterUdid.consistentUdid;
-
-      if ((udid ?? '').isEmpty) {
+      if ((_path ?? '').isEmpty) {
         throw null;
       }
 
-      return udid;
-    } catch (e) {
-      return Uuid().v4();
+      await File('$_path/__analytics_$key')
+          .create(recursive: true)
+          .then((f) => f.writeAsString(value ?? ''))
+          .catchError(Debug().error);
+    } catch (_) {
+      // do nothing
+    } finally {
+      return value;
     }
   }
 }

@@ -3,7 +3,6 @@ library config;
 
 import 'dart:convert' show json;
 import 'package:http/http.dart' show get;
-
 import '../debug/debug.dart' show Debug;
 import '../settings/settings.dart' show AnalyticsSettings;
 
@@ -29,7 +28,7 @@ class Config {
   /// device buffer to hold events until they can be sent/received.
   List<String> get destinations {
     try {
-      return _getRemoteSetting<dynamic>('destinations').cast<String>();
+      return _getRemoteSetting<List<dynamic>>('destinations').cast<String>();
     } catch (_) {
       return <String>[];
     }
@@ -81,7 +80,7 @@ class Config {
       }
 
       final remoteJsonString = (await get(url).timeout(defaultTimeout)).body;
-      _remoteSettings = json.decode(remoteJsonString);
+      _remoteSettings = json.decode(remoteJsonString) as Map<String, dynamic>;
     } catch (e) {
       Debug().error(e);
     }

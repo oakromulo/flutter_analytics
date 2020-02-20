@@ -11,11 +11,11 @@ class ContextNetwork {
   ContextNetwork();
 
   static final Future<String> _carrier =
-      SimInfo.getCarrierName.catchError((_) => null);
+      SimInfo.getCarrierName.catchError((dynamic _) => null);
 
   final _connectivityResult = Connectivity()
       .checkConnectivity()
-      .catchError((_) => ConnectivityResult.none);
+      .catchError((dynamic _) => ConnectivityResult.none);
 
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async {

@@ -1,16 +1,31 @@
 /// @nodoc
 library segment_group;
 
-import './segment.dart' show Segment, SegmentTypeEnum;
+import '../store/store.dart' show Store;
+import './segment.dart' show Segment;
 
 /// @nodoc
 class Group extends Segment {
   /// @nodoc
   Group(String groupId, [dynamic traits])
-      : super(SegmentTypeEnum.GROUP, groupId: groupId, traits: traits);
+      : _setGroupId = Store().setGroupId(groupId),
+        super(traits);
+
+  final Future<String> _setGroupId;
 
   /// @nodoc
   @override
-  Future<Map<String, dynamic>> toMap() async =>
-      (await super.toMap())..remove('properties');
+  Future<Map<String, dynamic>> toMap() async {
+    final groupId = await _setGroupId;
+
+    final payload = await super.toMap();
+    final traits = payload.remove('properties') as Map<String, dynamic> ??
+        <String, dynamic>{};
+
+    return <String, dynamic>{
+      ...payload,
+      'traits': <String, dynamic>{...traits, 'id': groupId},
+      'type': 'group'
+    };
+  }
 }

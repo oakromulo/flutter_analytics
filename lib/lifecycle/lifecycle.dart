@@ -10,7 +10,7 @@ class AppLifecycle {
   factory AppLifecycle() => _appLifecycle;
 
   AppLifecycle._internal()
-      : _subscriptions = [],
+      : _subscriptions = <void Function(AppLifecycleState state)>[],
         _state = AppLifecycleState.resumed;
 
   static final _appLifecycle = AppLifecycle._internal();

@@ -1,23 +1,25 @@
-library analytics_setup;
+/// @nodoc
+library setup;
 
+import 'dart:async' show FutureOr;
 import 'dart:convert' show AsciiCodec;
 
 import 'package:flutter_persistent_queue/flutter_persistent_queue.dart'
-    show PersistentQueue;
-import 'package:flutter_persistent_queue/typedefs/typedefs.dart' show OnFlush;
+    show OnFlush, PersistentQueue;
 import 'package:http/http.dart' show post, Response;
-
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug;
 import '../encoder/encoder.dart' show Encoder;
+import '../event/event.dart' show EventBuffer;
 import '../settings/settings.dart' show AnalyticsSettings;
 import '../store/store.dart' show Store;
+import '../version_control.dart' show sdkVersion;
 
-/// @nodoc
+/// @nodocs
 class Setup {
   /// @nodoc
-  Setup(this.params) {
-    ready = _setup(params);
+  Setup(this.params) : _buffer = EventBuffer() {
+    _buffer.defer(() => _setup(params));
   }
 
   /// @nodoc
@@ -26,14 +28,14 @@ class Setup {
   /// @nodoc
   Future<void> ready;
 
+  final EventBuffer _buffer;
+
   List<String> _destinations;
   List<PersistentQueue> _queues;
 
   /// @nodoc
-  List<String> get destinations => _destinations;
-
-  /// @nodoc
-  List<PersistentQueue> get queues => _queues;
+  Future<List<PersistentQueue>> get queues =>
+      _buffer.defer<List<PersistentQueue>>(() => _queues);
 
   Future<void> _setup(SetupParams params) async {
     Config().settings = params.settings;
@@ -44,14 +46,14 @@ class Setup {
     _validateDestinations(_destinations);
     Debug().log('destinations: $_destinations');
 
-    final orgId = await _resetOrgId(params.orgId);
-    Debug().log('orgId: $orgId');
+    await Store().setOrgId(params.orgId);
+    Debug().log(Store());
 
     _queues = await _initQueues(_destinations, params.onFlush);
   }
 
   static List<String> _dedup(List<String> a, List<String> b) =>
-      <String>{...a ?? [], ...b ?? []}.toList();
+      <String>{...a ?? <String>[], ...b ?? <String>[]}.toList();
 
   static Future<void> _downloadConfig(String url) async {
     try {
@@ -70,11 +72,17 @@ class Setup {
 
   static Future<PersistentQueue> _initQueue(
       String url, OnBatchFlush onBatchFlush) async {
+    final headers = <String, String>{
+      'organization': await Store().orgId,
+      'version': sdkVersion
+    };
+
     final pq = PersistentQueue(url.hashCode.toString(),
-        onFlush: _onFlush(url, onBatchFlush),
+        onFlush: _onFlush(url, onBatchFlush, headers),
         flushAt: Config().flushAtLength,
         flushTimeout: Config().flushAtDuration,
-        maxLength: Config().maxQueueLength);
+        maxLength: Config().maxQueueLength,
+        nickname: url);
 
     await pq.ready;
 
@@ -94,19 +102,25 @@ class Setup {
     return queues;
   }
 
-  static OnFlush _onFlush(String url, OnBatchFlush onBatchFlush) =>
+  static OnFlush _onFlush(
+          String url, OnBatchFlush onBatchFlush, Map<String, String> headers) =>
       (List<dynamic> input) async {
         try {
           final encoder = Encoder(input);
+          final batch = encoder.batch;
 
-          if (encoder.batch.isNotEmpty) {
-            _validatePost(await _post(url, encoder.toString()));
+          if (batch.isNotEmpty) {
+            final _post = post(url,
+                body: encoder.toString(),
+                encoding: AsciiCodec(),
+                headers: headers);
+            _validatePost(await _post.timeout(Config().defaultTimeout));
           }
 
           try {
-            (onBatchFlush ?? (_) => null)(encoder.batch);
+            await Future.sync(() => (onBatchFlush ?? ((_) => null))(batch));
           } catch (_) {
-            // completely ignore callback errors on this scope
+            // do nothing
           }
 
           Debug().log('an analytics batch got succesfully flushed to:\n$url');
@@ -119,15 +133,6 @@ class Setup {
           return false;
         }
       };
-
-  static Future<Response> _post(String url, String body,
-          [Duration timeout = const Duration(seconds: 60)]) =>
-      post(url, body: body, encoding: AsciiCodec()).timeout(timeout);
-
-  static Future<String> _resetOrgId(String orgId) {
-    Store().orgId = Future.value(orgId);
-    return Store().orgId;
-  }
 
   static void _validateDestinations(List<String> destinations) {
     if (destinations.isEmpty) {
@@ -169,4 +174,4 @@ class SetupParams {
 }
 
 /// Type signature alias for the optional `onFlush` event handler.
-typedef OnBatchFlush = void Function(List<Map<String, dynamic>>);
+typedef OnBatchFlush = FutureOr<void> Function(List<Map<String, dynamic>>);
