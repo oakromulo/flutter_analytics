@@ -153,10 +153,12 @@ class Analytics {
       flush();
     } else if (state == AppLifecycleState.resumed) {
       setup(
+          bucket: _setup.params.bucket,
           configUrl: _setup.params.configUrl,
           destinations: _setup.params.destinations,
           onFlush: _setup.params.onFlush,
-          orgId: _setup.params.orgId);
+          orgId: _setup.params.orgId,
+          settings: _setup.params.settings);
     }
   }
 
