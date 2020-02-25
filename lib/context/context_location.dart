@@ -2,7 +2,8 @@
 library context_location;
 
 import 'dart:async' show TimeoutException;
-import 'package:location/location.dart' show Location, LocationAccuracy;
+import 'package:location/location.dart'
+    show Location, LocationAccuracy, PermissionStatus;
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug, IgnoreException;
 import '../event/event.dart' show EventBuffer;
@@ -42,7 +43,9 @@ class ContextLocation {
             throw IgnoreException();
           }
 
-          return await _location.requestPermission();
+          final result = await _location.requestPermission();
+
+          return result == PermissionStatus.GRANTED;
         } catch (e, s) {
           Debug().error(e, s);
 
@@ -116,7 +119,7 @@ class ContextLocation {
     }
 
     if (!skipPermissions) {
-      if (!(await location.hasPermission())) {
+      if ((await location.hasPermission()) != PermissionStatus.GRANTED) {
         throw IgnoreException();
       }
     }

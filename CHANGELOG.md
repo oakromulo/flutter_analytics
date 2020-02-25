@@ -1,3 +1,7 @@
+## [v7.2.1](https://github.com/oakromulo/flutter_analytics/tree/v7.2.1) - 2020-02-25
+
+- Updated dependencies.
+
 ## [v7.1.1](https://github.com/oakromulo/flutter_analytics/tree/v7.1.1) - 2020-02-20
 
 - Optional `bucket` header defined at setup time to simplify post-processing of analytics events.
