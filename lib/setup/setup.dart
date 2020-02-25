@@ -151,13 +151,8 @@ class Setup {
 /// @nodoc
 class SetupParams {
   /// @nodoc
-  SetupParams(
-      [this.bucket,
-      this.configUrl,
-      this.destinations,
-      this.onFlush,
-      this.orgId,
-      this.settings]);
+  SetupParams(this.bucket, this.configUrl, this.destinations, this.onFlush,
+      this.orgId, this.settings);
 
   /// @nodoc
   final String bucket;
