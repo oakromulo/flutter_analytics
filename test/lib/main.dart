@@ -103,7 +103,11 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
     };
 
     await _clear();
-    Analytics().setup(configUrl: configUrl, onFlush: onFlush, orgId: 'remote');
+    Analytics().setup(
+        bucket: 'com.bucket',
+        configUrl: configUrl,
+        onFlush: onFlush,
+        orgId: 'remote');
     await _clear();
 
     Analytics().group('myGroupIdGoesHere');
