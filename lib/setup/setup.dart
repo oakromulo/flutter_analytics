@@ -74,7 +74,7 @@ class Setup {
       String url, SetupParams params) async {
     final headers = <String, String>{
       'bucket': params.bucket ?? '',
-      'organization': await Store().orgId,
+      'organization': params.orgId ?? '',
       'version': sdkVersion
     };
 
