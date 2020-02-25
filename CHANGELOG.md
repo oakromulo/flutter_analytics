@@ -1,3 +1,7 @@
+## [v7.2.2](https://github.com/oakromulo/flutter_analytics/tree/v7.2.2) - 2020-02-25
+
+- Enforce non-null organization header.
+
 ## [v7.2.1](https://github.com/oakromulo/flutter_analytics/tree/v7.2.1) - 2020-02-25
 
 - Updated dependencies.
