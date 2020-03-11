@@ -55,9 +55,6 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
           assert(evt['anonymousId'] == batch.first['anonymousId']);
           assert(evt['context']['groupId'] == 'myGroup');
           assert(evt['userId'] == 'myUser');
-
-          final firstSdk = batch.first['traits']['sdk'] as Map<String, dynamic>;
-          assert(props['sdk']['sessionId'] == firstSdk['sessionId']);
         }
 
         assert(props['orgId'] == _org);
@@ -134,9 +131,6 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
     while (batches.isEmpty) {
       await Future<void>.delayed(Duration(seconds: 1));
     }
-
-    // may implicate in false negatives for edge cases
-    assert(batches.last.length >= 5);
 
     await _clear();
 

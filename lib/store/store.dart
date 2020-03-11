@@ -6,12 +6,12 @@ import 'dart:io' show File;
 import 'package:flutter_udid/flutter_udid.dart' show FlutterUdid;
 import 'package:path_provider/path_provider.dart'
     show getApplicationDocumentsDirectory;
-import 'package:uuid/uuid.dart' show Uuid;
 
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug;
 import '../event/event.dart' show EventBuffer;
 import '../lifecycle/lifecycle.dart' show AppLifecycle, AppLifecycleState;
+import '../util/util.dart' show uuidV4;
 
 /// @nodoc
 class Store {
@@ -79,6 +79,8 @@ class Store {
           return _userId;
         }
 
+        await _resetSession();
+
         return _userId = await _write('user_id', id);
       });
 
@@ -141,7 +143,7 @@ class Store {
   }
 
   Future<void> _resetSession() async {
-    _sessionId = _uuidV4();
+    _sessionId = uuidV4();
     _sessionTimeout = DateTime.now().toUtc().add(Config().sessionTimeout);
   }
 
@@ -167,17 +169,7 @@ class Store {
 
       return udid;
     } catch (_) {
-      return _uuidV4();
-    }
-  }
-
-  String _uuidV4() {
-    try {
-      return Uuid().v4();
-    } catch (e, s) {
-      Debug().error(e, s);
-
-      return null;
+      return uuidV4();
     }
   }
 

@@ -13,6 +13,21 @@ class Encoder {
   final List<Map<String, dynamic>> batch;
 
   /// @nodoc
+  String get batchId {
+    try {
+      if (batch.isEmpty ||
+          batch.first.isEmpty ||
+          !batch.first.containsKey('messageId')) {
+        throw null;
+      }
+
+      return batch.first['messageId'].toString();
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// @nodoc
   @override
   String toString() => '{"batch":"${_encode(batch)}"}';
 

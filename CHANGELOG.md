@@ -1,3 +1,14 @@
+## [v7.3.1](https://github.com/oakromulo/flutter_analytics/tree/v7.3.1) - 2020-03-11
+
+- Header `batch` added in order to roughly identify the encoded `batch` on the body, simplifying
+  server-side handling of repeated client upload attempts including the same initial subset of
+  analytics events.
+- Improved/safer uuidV4 generator for `anonymousId` (fallback in case of failed/unavailable `udid`),
+  `messageId` and `sessionId`.
+- Rudimentary 1ms throttling mechanism added between events being fired/buffered.
+- Sessions now also get reset whenever `userId` changes (via `identify` calls).
+- Updated dependencies: `connectivity` and `path_provider`.
+
 ## [v7.2.3](https://github.com/oakromulo/flutter_analytics/tree/v7.2.3) - 2020-02-27
 
 - Fix possible `messageId` inconsistency.

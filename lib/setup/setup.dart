@@ -114,7 +114,7 @@ class Setup {
             final _post = post(url,
                 body: encoder.toString(),
                 encoding: AsciiCodec(),
-                headers: headers);
+                headers: {...headers, 'batch': encoder.batchId});
             _validatePost(await _post.timeout(Config().defaultTimeout));
           }
 

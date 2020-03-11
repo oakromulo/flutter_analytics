@@ -1,12 +1,12 @@
 /// @nodoc
 library segment;
 
-import 'package:uuid/uuid.dart' show Uuid;
 import '../context/context.dart' show Context;
+import '../event/event.dart' show EventBuffer;
 import '../lifecycle/lifecycle.dart' show AppLifecycle;
 import '../parser/parser.dart' show AnalyticsParser;
 import '../store/store.dart' show Store;
-import '../util/util.dart' show dartEnv;
+import '../util/util.dart' show dartEnv, uuidV4;
 export './segment_group.dart' show Group;
 export './segment_identify.dart' show Identify;
 export './segment_screen.dart' show Screen;
@@ -25,6 +25,7 @@ abstract class Segment {
         _tzOffsetHours = DateTime.now().timeZoneOffset.inHours,
         _userId = Store().userId;
 
+  static final _buffer = EventBuffer();
   static final _dartEnv = dartEnv();
 
   static String _previousMessageId;
@@ -41,13 +42,11 @@ abstract class Segment {
 
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async {
-    await Future<void>.delayed(Duration(microseconds: 1));
-
-    final messageId = _nextMessageId ?? Uuid().v4();
+    final messageId = _nextMessageId ?? (await _genUuid());
     final previousMessageId = _previousMessageId ?? messageId;
 
     _previousMessageId = messageId;
-    _nextMessageId = Uuid().v4();
+    _nextMessageId = await _genUuid();
 
     final nextMessageId = _nextMessageId;
 
@@ -73,4 +72,7 @@ abstract class Segment {
 
     return payload;
   }
+
+  static Future<String> _genUuid() => _buffer.defer(() =>
+      Future<void>.delayed(Duration(milliseconds: 1)).then((_) => uuidV4()));
 }
