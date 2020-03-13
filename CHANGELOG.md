@@ -1,3 +1,7 @@
+## 7.3.2
+
+* Prepare for 1.0.0 version of sensors and package_info. ([dart_lsc](http://github.com/amirh/dart_lsc))
+
 ## [v7.3.1](https://github.com/oakromulo/flutter_analytics/tree/v7.3.1) - 2020-03-11
 
 - Header `batch` added in order to roughly identify the encoded `batch` on the body, simplifying
