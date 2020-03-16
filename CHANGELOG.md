@@ -1,3 +1,16 @@
+## [v7.3.2](https://github.com/oakromulo/flutter_analytics/tree/v7.3.2) - 2020-03-16
+
+- Update dependencies: [device_info](https://pub.dev/packages?q=device_info),
+  [devicelocale](https://pub.dev/packages/devicelocale),
+  [location](https://pub.dev/packages/location) and
+  [package_info](https://pub.dev/packages/package_info)
+- [devicelocale](https://pub.dev/packages/devicelocale#022---14-march-2020): update iOS so that
+  locale does not show if it is null
+- [location](https://pub.dev/packages/location#254-11st-march-2020): fixes airplane mode preventing
+  location from being requested
+- [location](https://pub.dev/packages/location#254-11st-march-2020): fixes crash when activity is
+  not set on Android
+
 ## [v7.3.1](https://github.com/oakromulo/flutter_analytics/tree/v7.3.1) - 2020-03-11
 
 - Header `batch` added in order to roughly identify the encoded `batch` on the body, simplifying
