@@ -1,2 +1,2 @@
 /// @nodoc
-const configUrl = 'https://remote.config';
+const configUrl = 'https://s3.amazonaws.com/config.fanhero.net/index.json';

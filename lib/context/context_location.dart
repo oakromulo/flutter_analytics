@@ -45,7 +45,7 @@ class ContextLocation {
 
           final result = await _location.requestPermission();
 
-          return result == PermissionStatus.GRANTED;
+          return result == PermissionStatus.granted;
         } catch (e, s) {
           Debug().error(e, s);
 
@@ -119,7 +119,7 @@ class ContextLocation {
     }
 
     if (!skipPermissions) {
-      if ((await location.hasPermission()) != PermissionStatus.GRANTED) {
+      if ((await location.hasPermission()) != PermissionStatus.granted) {
         throw IgnoreException();
       }
     }
@@ -128,7 +128,7 @@ class ContextLocation {
       return;
     }
 
-    await location.changeSettings(accuracy: LocationAccuracy.POWERSAVE);
+    await location.changeSettings(accuracy: LocationAccuracy.powerSave);
     _location = location;
 
     _timer.enable();
