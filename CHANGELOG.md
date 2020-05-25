@@ -1,6 +1,12 @@
+## [v7.3.4](https://github.com/oakromulo/flutter_analytics/tree/v7.3.4) - 2020-05-25
+
+- Minor dependency updates.
+
 ## [v7.3.3](https://github.com/oakromulo/flutter_analytics/tree/v7.3.3) - 2020-04-29
+
 - Multiple dependency updates.
-- Prepare for 1.0.0 version of sensors and package_info. ([dart_lsc](http://github.com/amirh/dart_lsc))
+- Prepare for 1.0.0 version of sensors and package_info.
+  ([dart_lsc](http://github.com/amirh/dart_lsc))
 - Handle [location](https://pub.dev/packages/location) v3 breaking changes.
 
 ## [v7.3.2](https://github.com/oakromulo/flutter_analytics/tree/v7.3.2) - 2020-03-16
