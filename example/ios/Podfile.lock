@@ -2,8 +2,6 @@ PODS:
   - connectivity (0.0.1):
     - Flutter
     - Reachability
-  - connectivity_macos (0.0.1):
-    - Flutter
   - device_info (0.0.1):
     - Flutter
   - devicelocale (0.0.1):
@@ -14,13 +12,9 @@ PODS:
     - SAMKeychain
   - location (0.0.1):
     - Flutter
-  - location_web (0.0.1):
-    - Flutter
   - package_info (0.0.1):
     - Flutter
   - path_provider (0.0.1):
-    - Flutter
-  - path_provider_macos (0.0.1):
     - Flutter
   - Reachability (3.2)
   - SAMKeychain (1.5.3)
@@ -29,16 +23,13 @@ PODS:
 
 DEPENDENCIES:
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
-  - connectivity_macos (from `.symlinks/plugins/connectivity_macos/ios`)
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - Flutter (from `Flutter`)
   - flutter_udid (from `.symlinks/plugins/flutter_udid/ios`)
   - location (from `.symlinks/plugins/location/ios`)
-  - location_web (from `.symlinks/plugins/location_web/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
-  - path_provider_macos (from `.symlinks/plugins/path_provider_macos/ios`)
   - sim_info (from `.symlinks/plugins/sim_info/ios`)
 
 SPEC REPOS:
@@ -49,8 +40,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   connectivity:
     :path: ".symlinks/plugins/connectivity/ios"
-  connectivity_macos:
-    :path: ".symlinks/plugins/connectivity_macos/ios"
   device_info:
     :path: ".symlinks/plugins/device_info/ios"
   devicelocale:
@@ -61,33 +50,26 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_udid/ios"
   location:
     :path: ".symlinks/plugins/location/ios"
-  location_web:
-    :path: ".symlinks/plugins/location_web/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
-  path_provider_macos:
-    :path: ".symlinks/plugins/path_provider_macos/ios"
   sim_info:
     :path: ".symlinks/plugins/sim_info/ios"
 
 SPEC CHECKSUMS:
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
-  connectivity_macos: e2e9731b6b22dda39eb1b128f6969d574460e191
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   devicelocale: feebbe5e7a30adb8c4f83185de1b50ff19b44f00
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_udid: c9d59b0a440e137882faa5cf53a3501e906fb8c2
   location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
-  location_web: b94e7433cfe28c0f7c8923c2ee482824b32e55a7
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
-  path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
   sim_info: 9d8750399533a8eb626fbb7f6fc0776b154de2a6
 
-PODFILE CHECKSUM: baeb49f9e5cd777e2010373d2158078abb9ef90d
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

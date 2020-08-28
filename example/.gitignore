@@ -69,6 +69,7 @@ build/
 **/ios/**/profile
 **/ios/**/xcuserdata
 **/ios/.generated/
+**/ios/Flutter/.last_build_id
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
 **/ios/Flutter/Generated.xcconfig
@@ -87,3 +88,5 @@ build/
 
 # local assets
 .config_url
+
+/Users/oakromulo/flutter_analytics/example/ios/Flutter/.last_build_id
