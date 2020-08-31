@@ -5,7 +5,7 @@ import 'dart:async' show FutureOr;
 import 'dart:convert' show AsciiCodec;
 
 import 'package:flutter_persistent_queue/flutter_persistent_queue.dart'
-    show OnFlush, PersistentQueue;
+    show PersistentQueue;
 import 'package:http/http.dart' show post, Response;
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug;
@@ -103,9 +103,9 @@ class Setup {
     return queues;
   }
 
-  static OnFlush _onFlush(
+  static FutureOr Function(List) _onFlush(
           String url, OnBatchFlush onBatchFlush, Map<String, String> headers) =>
-      (List<dynamic> input) async {
+      (List input) async {
         try {
           final encoder = Encoder(input);
           final batch = encoder.batch;

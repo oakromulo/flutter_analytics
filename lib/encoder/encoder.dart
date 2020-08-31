@@ -7,7 +7,7 @@ import 'dart:io' show gzip;
 /// @nodoc
 class Encoder {
   /// @nodoc
-  Encoder(List<dynamic> input) : batch = _fill(input);
+  Encoder(List input) : batch = _fill(input);
 
   /// @nodoc
   final List<Map<String, dynamic>> batch;
@@ -39,9 +39,9 @@ class Encoder {
     }
   }
 
-  static List<Map<String, dynamic>> _fill(List<dynamic> input) {
+  static List<Map<String, dynamic>> _fill(List input) {
     try {
-      final _input = List<dynamic>.of(input ?? <dynamic>[]);
+      final _input = List.of(input ?? []);
       final _batch = _input.cast<Map<String, dynamic>>();
 
       final sentAt = DateTime.now().toUtc().toIso8601String();

@@ -1,3 +1,7 @@
+## [v7.5.1](https://github.com/oakromulo/flutter_analytics/tree/v7.5.1) - 2020-08-28
+
+- Minor dependency update and refactor.
+
 ## [v7.4.1](https://github.com/oakromulo/flutter_analytics/tree/v7.4.1) - 2020-08-28
 
 - Major dependency updates.

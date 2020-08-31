@@ -9,8 +9,7 @@
 /// requests is defined OTA, as well as a few other settings.
 library flutter_analytics;
 
-import 'package:flutter_persistent_queue/flutter_persistent_queue.dart'
-    show OnFlush;
+import 'dart:async' show FutureOr;
 
 import './context/context_location.dart' show ContextLocation;
 import './debug/debug.dart' show Debug;
@@ -57,9 +56,9 @@ class Analytics {
 
   /// Triggers a manual flush operation to clear all local buffers.
   ///
-  /// An optional [OnFlush] [onFlush] handler may be provided to send batched
-  /// events to custom destinations for debugging purposes. It must return
-  /// `true` to properly dequeue the elements.
+  /// An optional [onFlush] handler may be provided to send batched
+  /// events to custom destinations for debugging purposes. The elements are
+  /// dequeued once [onFlush] completes as long as it does not return `false`.
   ///
   /// p.s. for normal SDK usage flush] calls may hardly be needed - one use case
   /// could be to force the SDK to immediately dispatch special events that just
@@ -68,7 +67,7 @@ class Analytics {
   /// p.s.2 flushing might not start immediately as the flush operation (just as
   /// all other public methods) gets scheduled to occur sequentially after all
   /// previous logging calls go through on the action buffer.
-  Future<void> flush([OnFlush onFlush]) =>
+  Future<void> flush([FutureOr Function(List) onFlush]) =>
       _actionBuffer.defer(() => _flush(onFlush)).catchError(Debug().error);
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
@@ -130,7 +129,7 @@ class Analytics {
     AppLifecycle().state = state;
   }
 
-  Future<void> _flush(OnFlush onFlush) async {
+  Future<void> _flush(FutureOr Function(List) onFlush) async {
     if (!enabled || _setup == null) {
       return;
     }

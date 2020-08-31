@@ -9,8 +9,8 @@ class Event {
   /// @nodoc
   Event(this._handler);
 
-  final _completer = Completer<dynamic>();
-  final FutureOr<dynamic> Function() _handler;
+  final _completer = Completer();
+  final FutureOr Function() _handler;
 
   /// @nodoc
   Future get future => _completer.future;
@@ -18,7 +18,7 @@ class Event {
   /// @nodoc
   Future run() async {
     try {
-      final dynamic res = await Future<dynamic>.sync(_handler);
+      final res = await Future.sync(_handler);
 
       _completer.complete(res);
 

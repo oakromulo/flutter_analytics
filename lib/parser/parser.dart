@@ -46,13 +46,11 @@ class AnalyticsParser {
     }
   }
 
-  static List<dynamic> _encodeList(dynamic input) {
+  static List _encodeList(dynamic input) {
     try {
-      return List<dynamic>.of(input as Iterable<dynamic>)
-          .map<dynamic>(_encode)
-          .toList();
+      return List.of(input as Iterable).map(_encode).toList();
     } catch (_) {
-      return <dynamic>[];
+      return [];
     }
   }
 
@@ -93,7 +91,7 @@ class AnalyticsParser {
 
   static bool _isList(dynamic input) {
     try {
-      return List<dynamic>.of(input as Iterable<dynamic>) is List<dynamic>;
+      return List.of(input as Iterable) is List;
     } catch (_) {
       return false;
     }

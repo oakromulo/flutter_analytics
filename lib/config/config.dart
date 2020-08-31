@@ -28,7 +28,7 @@ class Config {
   /// device buffer to hold events until they can be sent/received.
   List<String> get destinations {
     try {
-      return _getRemoteSetting<List<dynamic>>('destinations').cast<String>();
+      return _getRemoteSetting<List>('destinations').cast<String>();
     } catch (_) {
       return <String>[];
     }
