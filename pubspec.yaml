@@ -10,17 +10,17 @@ environment:
   sdk: '>=2.7.0 <3.0.0'
 
 dependencies:
-  connectivity: ^0.4.9+2
-  device_info: ^0.4.2+7
-  devicelocale: ^0.3.1
+  connectivity: ^2.0.1
+  device_info: ^1.0.0
+  devicelocale: ^0.3.3
   flutter:
     sdk: flutter
-  flutter_persistent_queue: ^6.1.1
+  flutter_persistent_queue: ^6.1.1+1
   flutter_udid: ^1.0.1
   http: ^0.12.2
   location: ^3.0.2
   package_info: '>=0.4.3 <2.0.0'
-  path_provider: ^1.6.14
+  path_provider: ^1.6.24
   recase: ^3.0.0
   sim_info: ^0.1.1
   uuid: ^2.2.2
