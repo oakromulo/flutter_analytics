@@ -111,7 +111,7 @@ class Setup {
           final batch = encoder.batch;
 
           if (batch.isNotEmpty) {
-            final _post = post(url,
+            final _post = post(Uri.parse(url),
                 body: encoder.toString(),
                 encoding: AsciiCodec(),
                 headers: {...headers, 'batch': encoder.batchId});
