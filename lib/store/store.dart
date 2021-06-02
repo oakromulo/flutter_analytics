@@ -161,7 +161,7 @@ class Store {
 
   Future<String> _udid() async {
     try {
-      final udid = await FlutterUdid.consistentUdid.catchError(Debug().error);
+      final udid = await FlutterUdid.consistentUdid;
 
       if ((udid ?? '').isEmpty) {
         throw null;
@@ -181,8 +181,7 @@ class Store {
 
       await File('$_path/__analytics_$key')
           .create(recursive: true)
-          .then((f) => f.writeAsString(value ?? ''))
-          .catchError(Debug().error);
+          .then((f) => f.writeAsString(value ?? ''));
 
       return value;
     } catch (_) {
