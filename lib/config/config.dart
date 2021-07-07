@@ -79,7 +79,8 @@ class Config {
         return;
       }
 
-      final remoteJsonString = (await get(url).timeout(defaultTimeout)).body;
+      final remoteJsonString =
+          (await get(Uri.parse(url)).timeout(defaultTimeout)).body;
       _remoteSettings = json.decode(remoteJsonString) as Map<String, dynamic>;
     } catch (e) {
       Debug().error(e);
