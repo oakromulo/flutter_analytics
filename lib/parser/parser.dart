@@ -26,7 +26,7 @@ class AnalyticsParser {
     return _encodeMap(input) ?? _encodeDefault(input);
   }
 
-  static String _encodeDateTime(dynamic input) {
+  static String? _encodeDateTime(dynamic input) {
     try {
       return (input as DateTime).toUtc().toIso8601String();
     } catch (_) {
@@ -34,7 +34,7 @@ class AnalyticsParser {
     }
   }
 
-  static String _encodeDefault(dynamic input) {
+  static String? _encodeDefault(dynamic input) {
     try {
       if (input == null) {
         return null;
@@ -54,7 +54,7 @@ class AnalyticsParser {
     }
   }
 
-  static Map<String, dynamic> _encodeMap(dynamic input) {
+  static Map<String, dynamic>? _encodeMap(dynamic input) {
     try {
       if (input == null) {
         return null;

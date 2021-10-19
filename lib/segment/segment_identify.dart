@@ -1,10 +1,10 @@
 /// @nodoc
 library segment_identify;
 
+import './segment.dart' show Segment;
 import '../context/context.dart' show Context;
 import '../parser/parser.dart' show AnalyticsParser;
 import '../store/store.dart' show Store;
-import './segment.dart' show Segment;
 
 /// @nodoc
 class Identify extends Segment {
@@ -18,7 +18,7 @@ class Identify extends Segment {
     };
   }
 
-  final Future<String> _setUserId;
+  final Future<String?> _setUserId;
 
   /// @nodoc
   @override
@@ -26,7 +26,7 @@ class Identify extends Segment {
     final userId = await _setUserId;
 
     final payload = await super.toMap();
-    final traits = payload.remove('properties') as Map<String, dynamic> ??
+    final traits = payload.remove('properties') as Map<String, dynamic>? ??
         <String, dynamic>{};
 
     return <String, dynamic>{

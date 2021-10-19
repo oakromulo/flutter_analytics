@@ -1,8 +1,8 @@
 /// @nodoc
 library segment_track;
 
-import '../util/util.dart' show titleCase;
 import './segment.dart' show Segment;
+import '../util/util.dart' show titleCase;
 
 /// @nodoc
 class Track extends Segment {

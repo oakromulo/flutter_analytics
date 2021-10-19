@@ -10,18 +10,18 @@ String dartEnv() =>
     bool.fromEnvironment('dart.vm.product') ? 'PRODUCTION' : 'DEVELOPMENT';
 
 /// @nodoc
-String camelCase(String s) => _toCase(s, (s) => ReCase(s).camelCase);
+String? camelCase(String s) => _toCase(s, (s) => ReCase(s).camelCase);
 
 /// @nodoc
-String titleCase(String s) => _toCase(s, (s) => ReCase(s).titleCase);
+String? titleCase(String s) => _toCase(s, (s) => ReCase(s).titleCase);
 
 /// @nodoc
 String uuidV4() =>
     Uuid().v4(options: <String, dynamic>{'rng': UuidUtil.cryptoRNG});
 
-String _toCase(String string, String Function(String) recaseFunction) {
+String? _toCase(String string, String Function(String) recaseFunction) {
   try {
-    if (string == null || string.isEmpty) {
+    if (string.isEmpty) {
       return null;
     }
 

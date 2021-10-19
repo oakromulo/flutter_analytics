@@ -14,7 +14,7 @@ void main() {
     final localFinder = find.byValueKey('local');
     final tputFinder = find.byValueKey('throughput');
 
-    FlutterDriver driver;
+    FlutterDriver? driver;
 
     setUpAll(() async {
       driver ??= await FlutterDriver.connect();
@@ -22,17 +22,17 @@ void main() {
 
     tearDownAll(() async {
       if (driver != null) {
-        await driver.close();
+        await driver!.close();
       }
     });
 
     test('run local test', () async {
-      await driver.tap(localFinder, timeout: _tenSecs);
+      await driver!.tap(localFinder, timeout: _tenSecs);
 
       bool success = false;
 
       while (true) {
-        final txt = await driver.getText(txt1Finder, timeout: _tenSecs);
+        final txt = await driver!.getText(txt1Finder, timeout: _tenSecs);
 
         if (txt.contains('success')) {
           success = true;
@@ -51,12 +51,12 @@ void main() {
     });
 
     test('run remote test', () async {
-      await driver.tap(remoteFinder, timeout: _tenSecs);
+      await driver!.tap(remoteFinder, timeout: _tenSecs);
 
       bool success = false;
 
       while (true) {
-        final txt = await driver.getText(txt2Finder, timeout: _tenSecs);
+        final txt = await driver!.getText(txt2Finder, timeout: _tenSecs);
 
         if (txt.contains('success')) {
           success = true;
@@ -75,12 +75,12 @@ void main() {
     });
 
     test('run throughput test', () async {
-      await driver.tap(tputFinder, timeout: _tenSecs);
+      await driver!.tap(tputFinder, timeout: _tenSecs);
 
       bool success = false;
 
       while (true) {
-        final txt = await driver.getText(txt3Finder, timeout: _tenSecs);
+        final txt = await driver!.getText(txt3Finder, timeout: _tenSecs);
 
         if (txt.contains('success')) {
           success = true;
