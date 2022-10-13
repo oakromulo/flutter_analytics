@@ -91,7 +91,7 @@ class AnalyticsParser {
 
   static bool _isList(dynamic input) {
     try {
-      return List.of(input as Iterable) is List;
+      return input is Iterable;
     } catch (_) {
       return false;
     }
@@ -99,9 +99,7 @@ class AnalyticsParser {
 
   static bool _isMap(dynamic input) {
     try {
-      final _input = Map<String, dynamic>.of(input as Map<String, dynamic>);
-
-      return _input is Map<String, dynamic>;
+      return input is Map<String, dynamic>;
     } catch (_) {
       return false;
     }

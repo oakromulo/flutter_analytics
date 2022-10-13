@@ -110,9 +110,18 @@ class Store {
     }
   }
 
-  Future<String?> _initAnonymousId() async => (await _read('anonymous_id')) ?? (await _write('anonymous_id', await _udid()));
+  Future<String?> _initAnonymousId() async =>
+      (await _read('anonymous_id')) ??
+      (await _write(
+        'anonymous_id',
+        await _udid(),
+      ));
 
-  bool _isSessionExpired() => _sessionTimeout == null || DateTime.now().toUtc().isAfter(_sessionTimeout!);
+  bool _isSessionExpired() =>
+      _sessionTimeout == null ||
+      DateTime.now().toUtc().isAfter(
+            _sessionTimeout!,
+          );
 
   String? _nullIfEmpty(String text) => text.isNotEmpty ? text : null;
 

@@ -33,6 +33,7 @@ class Setup {
   List<PersistentQueue>? _queues;
 
   /// @nodoc
+  // ignore: lines_longer_than_80_chars
   Future<List<PersistentQueue>?> get queues => _buffer.defer<List<PersistentQueue>>(
         () => _queues,
       );

@@ -1,7 +1,7 @@
 /// @nodoc
 library event;
 
-import 'dart:async' show Completer, FutureOr, StreamController, StreamSubscription;
+import 'dart:async';
 
 /// @nodoc
 class Event {
