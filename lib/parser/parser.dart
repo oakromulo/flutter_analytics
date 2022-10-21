@@ -26,7 +26,7 @@ class AnalyticsParser {
     return _encodeMap(input) ?? _encodeDefault(input);
   }
 
-  static String _encodeDateTime(dynamic input) {
+  static String? _encodeDateTime(dynamic input) {
     try {
       return (input as DateTime).toUtc().toIso8601String();
     } catch (_) {
@@ -34,7 +34,7 @@ class AnalyticsParser {
     }
   }
 
-  static String _encodeDefault(dynamic input) {
+  static String? _encodeDefault(dynamic input) {
     try {
       if (input == null) {
         return null;
@@ -54,7 +54,7 @@ class AnalyticsParser {
     }
   }
 
-  static Map<String, dynamic> _encodeMap(dynamic input) {
+  static Map<String, dynamic>? _encodeMap(dynamic input) {
     try {
       if (input == null) {
         return null;
@@ -91,7 +91,7 @@ class AnalyticsParser {
 
   static bool _isList(dynamic input) {
     try {
-      return List.of(input as Iterable) is List;
+      return input is Iterable;
     } catch (_) {
       return false;
     }
@@ -99,9 +99,7 @@ class AnalyticsParser {
 
   static bool _isMap(dynamic input) {
     try {
-      final _input = Map<String, dynamic>.of(input as Map<String, dynamic>);
-
-      return _input is Map<String, dynamic>;
+      return input is Map<String, dynamic>;
     } catch (_) {
       return false;
     }

@@ -2,6 +2,7 @@
 library lifecycle;
 
 import 'dart:ui' show AppLifecycleState;
+
 export 'dart:ui' show AppLifecycleState;
 
 /// @nodoc
@@ -21,7 +22,7 @@ class AppLifecycle {
   /// @nodoc
   AppLifecycleState get state => _state;
   set state(AppLifecycleState newState) {
-    if (newState == null || newState == _state) {
+    if (newState == _state) {
       return;
     }
 

@@ -28,17 +28,17 @@ abstract class Segment {
   static final _buffer = EventBuffer();
   static final _dartEnv = dartEnv();
 
-  static String _previousMessageId;
-  static String _nextMessageId;
+  static String? _previousMessageId;
+  static String? _nextMessageId;
 
   final String _appLifecycle;
-  final Future<String> _anonymousId;
+  final Future<String?> _anonymousId;
   final Future<Map<String, dynamic>> _context;
   final Map<String, dynamic> _properties;
-  final Future<String> _sessionId;
+  final Future<String?> _sessionId;
   final String _timestamp;
   final int _tzOffsetHours;
-  final Future<String> _userId;
+  final Future<String?> _userId;
 
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async {
@@ -73,6 +73,6 @@ abstract class Segment {
     return payload;
   }
 
-  static Future<String> _genUuid() => _buffer.defer(() =>
+  static Future<String?> _genUuid() => _buffer.defer(() =>
       Future<void>.delayed(Duration(milliseconds: 1)).then((_) => uuidV4()));
 }

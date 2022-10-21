@@ -4,8 +4,7 @@ library store;
 import 'dart:io' show File;
 
 import 'package:flutter_udid/flutter_udid.dart' show FlutterUdid;
-import 'package:path_provider/path_provider.dart'
-    show getApplicationDocumentsDirectory;
+import 'package:path_provider/path_provider.dart' show getApplicationDocumentsDirectory;
 
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug;
@@ -26,28 +25,28 @@ class Store {
 
   final EventBuffer _buffer;
 
-  String _anonymousId;
-  String _groupId;
-  String _orgId;
-  String _path;
-  String _sessionId;
-  DateTime _sessionTimeout;
-  String _userId;
+  String? _anonymousId;
+  String? _groupId;
+  String? _orgId;
+  String? _path;
+  String? _sessionId;
+  DateTime? _sessionTimeout;
+  String? _userId;
 
   /// @nodoc
-  Future<String> get anonymousId => _buffer.defer<String>(() => _anonymousId);
+  Future<String?> get anonymousId => _buffer.defer<String>(() => _anonymousId);
 
   /// @nodoc
-  Future<String> get groupId => _buffer.defer<String>(() => _groupId);
+  Future<String?> get groupId => _buffer.defer<String>(() => _groupId);
 
   /// @nodoc
-  Future<String> get orgId => _buffer.defer<String>(() => _orgId);
+  Future<String?> get orgId => _buffer.defer<String>(() => _orgId);
 
   /// @nodoc
-  Future<String> get userId => _buffer.defer<String>(() => _userId);
+  Future<String?> get userId => _buffer.defer<String>(() => _userId);
 
   /// @nodoc
-  Future<String> get sessionId => _buffer.defer<String>(() async {
+  Future<String?> get sessionId => _buffer.defer<String?>(() async {
         if (_isSessionExpired()) {
           await _resetSession();
         }
@@ -56,8 +55,8 @@ class Store {
       });
 
   /// @nodoc
-  Future<String> setGroupId(String id) => _buffer.defer<String>(() async {
-        if ((_groupId ?? '') == (id ?? '')) {
+  Future<String?> setGroupId(String id) => _buffer.defer<String?>(() async {
+        if ((_groupId ?? '') == id) {
           return _groupId;
         }
 
@@ -65,7 +64,7 @@ class Store {
       });
 
   /// @nodoc
-  Future<String> setOrgId(String id) => _buffer.defer<String>(() async {
+  Future<String?> setOrgId(String? id) => _buffer.defer<String?>(() async {
         if ((_orgId ?? '') == (id ?? '')) {
           return _orgId;
         }
@@ -74,8 +73,8 @@ class Store {
       });
 
   /// @nodoc
-  Future<String> setUserId(String id) => _buffer.defer<String>(() async {
-        if ((_userId ?? '') == (id ?? '')) {
+  Future<String?> setUserId(String id) => _buffer.defer<String?>(() async {
+        if ((_userId ?? '') == id) {
           return _userId;
         }
 
@@ -111,15 +110,20 @@ class Store {
     }
   }
 
-  Future<String> _initAnonymousId() async =>
+  Future<String?> _initAnonymousId() async =>
       (await _read('anonymous_id')) ??
-      (await _write('anonymous_id', await _udid()));
+      (await _write(
+        'anonymous_id',
+        await _udid(),
+      ));
 
   bool _isSessionExpired() =>
       _sessionTimeout == null ||
-      DateTime.now().toUtc().isAfter(_sessionTimeout);
+      DateTime.now().toUtc().isAfter(
+            _sessionTimeout!,
+          );
 
-  String _nullIfEmpty(String text) => (text ?? '').isNotEmpty ? text : null;
+  String? _nullIfEmpty(String text) => text.isNotEmpty ? text : null;
 
   void _onAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -127,17 +131,15 @@ class Store {
     }
   }
 
-  Future<String> _read(String key) async {
+  Future<String?> _read(String key) async {
+    if ((_path ?? '').isEmpty) {
+      return null;
+    }
     try {
-      if ((_path ?? '').isEmpty) {
-        throw null;
-      }
-
-      return File('$_path/__analytics_$key')
-          .readAsString()
-          .then<String>((value) => _nullIfEmpty(value))
-          .catchError((dynamic _) => null);
-    } catch (_) {
+      return File('$_path/__analytics_$key').readAsString().then<String>(
+            (value) => _nullIfEmpty(value)!,
+          );
+    } catch (e) {
       return null;
     }
   }
@@ -147,10 +149,10 @@ class Store {
     _sessionTimeout = DateTime.now().toUtc().add(Config().sessionTimeout);
   }
 
-  String _strFromDate(DateTime date) {
+  String? _strFromDate(DateTime? date) {
     try {
       if (date == null) {
-        throw null;
+        return null;
       }
 
       return date.toIso8601String();
@@ -163,8 +165,8 @@ class Store {
     try {
       final udid = await FlutterUdid.consistentUdid;
 
-      if ((udid ?? '').isEmpty) {
-        throw null;
+      if (udid.isEmpty) {
+        return uuidV4();
       }
 
       return udid;
@@ -173,15 +175,13 @@ class Store {
     }
   }
 
-  Future<String> _write(String key, String value) async {
+  Future<String?> _write(String key, String? value) async {
     try {
       if ((_path ?? '').isEmpty) {
-        throw null;
+        return value;
       }
 
-      await File('$_path/__analytics_$key')
-          .create(recursive: true)
-          .then((f) => f.writeAsString(value ?? ''));
+      await File('$_path/__analytics_$key').create(recursive: true).then((f) => f.writeAsString(value ?? ''));
 
       return value;
     } catch (_) {

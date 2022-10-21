@@ -42,7 +42,7 @@ class Analytics {
   final EventBuffer _actionBuffer;
   final EventBuffer _logBuffer;
 
-  Setup _setup;
+  Setup? _setup;
 
   /// Prints informative [Analytics] messages if not `false`. Default is `true`.
   bool get debug => Debug().enabled;
@@ -67,22 +67,39 @@ class Analytics {
   /// p.s.2 flushing might not start immediately as the flush operation (just as
   /// all other public methods) gets scheduled to occur sequentially after all
   /// previous logging calls go through on the action buffer.
-  Future<void> flush([FutureOr Function(List) onFlush]) =>
-      _actionBuffer.defer(() => _flush(onFlush)).catchError(Debug().error);
+  Future<void> flush([
+    FutureOr Function(List)? onFlush,
+  ]) =>
+      _actionBuffer
+          .defer(
+            () => _flush(onFlush),
+          )
+          .catchError(
+            Debug().error,
+          );
 
   /// Groups users into groups. A [groupId] (channelId) must be provided.
-  Future<void> group(String groupId, [dynamic traits]) =>
+  Future<void> group(
+    String groupId, [
+    dynamic traits,
+  ]) =>
       _log((_) => Group(groupId, traits));
 
   /// Identifies registered users. A nullable [userId] must be provided.
-  Future<void> identify(String userId, [dynamic traits]) =>
+  Future<void> identify(
+    String userId, [
+    dynamic traits,
+  ]) =>
       _log((_) => Identify(userId, traits));
 
   /// Requests authorization to fetch device location.
-  Future<bool> requestPermission() => ContextLocation().requestPermission();
+  Future<bool?> requestPermission() => ContextLocation().requestPermission();
 
   /// Logs the current screen [name].
-  Future<void> screen(String name, [dynamic properties]) =>
+  Future<void> screen(
+    String name, [
+    dynamic properties,
+  ]) =>
       _log((_) => Screen(name, properties));
 
   /// Instantiates analytics engine with basic information before logging.
@@ -103,23 +120,37 @@ class Analytics {
   /// - [onFlush]: callback to be called after every event batch being flushed
   /// - [orgId]: unique identifier for the top-level org in analytics events
   /// - [settings]: additional/optional [AnalyticsSettings] for fine-tune params
-  Future<void> setup(
-      {String bucket,
-      String configUrl,
-      List<String> destinations,
-      OnBatchFlush onFlush,
-      String orgId,
-      AnalyticsSettings settings}) {
-    final setupParams =
-        SetupParams(bucket, configUrl, destinations, onFlush, orgId, settings);
+  Future<void> setup({
+    String? bucket,
+    String? configUrl,
+    List<String>? destinations,
+    OnBatchFlush? onFlush,
+    String? orgId,
+    AnalyticsSettings? settings,
+  }) {
+    final setupParams = SetupParams(
+      bucket,
+      configUrl,
+      destinations,
+      onFlush,
+      orgId,
+      settings,
+    );
 
     return _actionBuffer
-        .defer(() => _init(setupParams))
-        .catchError(Debug().error);
+        .defer(
+          () => _init(setupParams),
+        )
+        .catchError(
+          Debug().error,
+        );
   }
 
   /// Logs an [event] and its respective [properties].
-  Future<void> track(String event, [dynamic properties]) =>
+  Future<void> track(
+    String event, [
+    dynamic properties,
+  ]) =>
       _log((_) => Track(event, properties));
 
   /// Informs [Analytics] of caller [AppLifecycleState] changes.
@@ -129,13 +160,15 @@ class Analytics {
     AppLifecycle().state = state;
   }
 
-  Future<void> _flush(FutureOr Function(List) onFlush) async {
+  Future<void> _flush(FutureOr Function(List)? onFlush) async {
     if (!enabled || _setup == null) {
       return;
     }
-
-    for (final queue in await _setup.queues) {
-      await queue.flush(onFlush).catchError(Debug().error);
+    final queues = await _setup!.queues;
+    if (queues != null) {
+      for (final queue in queues) {
+        await queue.flush(onFlush).catchError(Debug().error);
+      }
     }
   }
 
@@ -159,16 +192,16 @@ class Analytics {
       flush();
     } else if (state == AppLifecycleState.resumed) {
       setup(
-          bucket: _setup.params.bucket,
-          configUrl: _setup.params.configUrl,
-          destinations: _setup.params.destinations,
-          onFlush: _setup.params.onFlush,
-          orgId: _setup.params.orgId,
-          settings: _setup.params.settings);
+          bucket: _setup!.params.bucket,
+          configUrl: _setup!.params.configUrl,
+          destinations: _setup!.params.destinations,
+          onFlush: _setup!.params.onFlush,
+          orgId: _setup!.params.orgId,
+          settings: _setup!.params.settings);
     }
   }
 
-  Future<void> _push(Segment segment) async {
+  Future<void> _push(Segment? segment) async {
     if (_setup == null) {
       throw Exception('AnalyticsNotReady');
     }
@@ -177,10 +210,12 @@ class Analytics {
       return;
     }
 
-    final payload = await segment.toMap();
-
-    for (final queue in await _setup.queues) {
-      await queue.push(payload).catchError(Debug().error);
+    final payload = await segment?.toMap();
+    final queues = await _setup!.queues;
+    if (queues != null) {
+      for (final queue in queues) {
+        await queue.push(payload).catchError(Debug().error);
+      }
     }
   }
 }

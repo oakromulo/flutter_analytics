@@ -21,8 +21,8 @@ Future<Map<String, dynamic>> _androidDevice() async {
 
   return <String, dynamic>{
     'id': androidInfo.androidId,
-    'manufacturer': androidInfo.manufacturer ?? androidInfo.brand,
-    'model': androidInfo.model ?? androidInfo.product,
+    'manufacturer': androidInfo.manufacturer,
+    'model': androidInfo.model,
     'name': 'n/a',
     'type': androidInfo.type
   };

@@ -1,8 +1,8 @@
 /// @nodoc
 library segment_group;
 
-import '../store/store.dart' show Store;
 import './segment.dart' show Segment;
+import '../store/store.dart' show Store;
 
 /// @nodoc
 class Group extends Segment {
@@ -11,7 +11,7 @@ class Group extends Segment {
       : _setGroupId = Store().setGroupId(groupId),
         super(traits);
 
-  final Future<String> _setGroupId;
+  final Future<String?> _setGroupId;
 
   /// @nodoc
   @override
@@ -19,7 +19,7 @@ class Group extends Segment {
     final groupId = await _setGroupId;
 
     final payload = await super.toMap();
-    final traits = payload.remove('properties') as Map<String, dynamic> ??
+    final traits = payload.remove('properties') as Map<String, dynamic>? ??
         <String, dynamic>{};
 
     return <String, dynamic>{

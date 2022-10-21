@@ -5,7 +5,7 @@ import 'package:devicelocale/devicelocale.dart' show Devicelocale;
 import '../debug/debug.dart' show Debug;
 
 /// @nodoc
-Future<String> contextLocale() async {
+Future<String?> contextLocale() async {
   try {
     return Devicelocale.currentLocale;
   } catch (e, s) {

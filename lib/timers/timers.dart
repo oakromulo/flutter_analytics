@@ -8,11 +8,11 @@ class PeriodicTimer {
   /// @nodoc
   PeriodicTimer(this._interval, this._onTick, [this._immediate = true]);
 
-  final Duration _interval;
+  final Duration? _interval;
   final Function _onTick;
   final bool _immediate;
 
-  Timer _timer;
+  Timer? _timer;
 
   /// @nodoc
   void disable() {
@@ -20,7 +20,7 @@ class PeriodicTimer {
       return;
     }
 
-    _timer.cancel();
+    _timer!.cancel();
     _timer = null;
   }
 
@@ -30,7 +30,7 @@ class PeriodicTimer {
       return;
     }
 
-    _timer = Timer.periodic(_interval, (_) => _onTick());
+    _timer = Timer.periodic(_interval!, (_) => _onTick());
 
     if (_immediate) {
       _onTick();
