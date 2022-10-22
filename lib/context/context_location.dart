@@ -78,13 +78,13 @@ class ContextLocation {
       await _verifySetup();
 
       final locationData =
-          await _location!.getLocation().timeout(_refreshInterval!);
+          await _location?.getLocation().timeout(_refreshInterval!);
 
-      if (locationData.latitude == null || locationData.longitude == null) {
+      if (locationData?.latitude == null || locationData?.longitude == null) {
         throw IgnoreException();
       }
 
-      _latitude = locationData.latitude;
+      _latitude = locationData!.latitude;
       _longitude = locationData.longitude;
 
       if (locationData.time != null) {
