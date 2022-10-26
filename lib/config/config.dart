@@ -66,7 +66,7 @@ class Config {
 
   T? _getRemoteSetting<T>(String key) {
     try {
-      return _remoteSettings![key] as T?;
+      return _remoteSettings?[key] as T?;
     } catch (_) {
       return null;
     }

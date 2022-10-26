@@ -81,29 +81,11 @@ class AnalyticsParser {
     }
   }
 
-  static bool _isDateTime(dynamic input) {
-    try {
-      return input is DateTime;
-    } catch (_) {
-      return false;
-    }
-  }
+  static bool _isDateTime(dynamic input) => input is DateTime;
 
-  static bool _isList(dynamic input) {
-    try {
-      return input is Iterable;
-    } catch (_) {
-      return false;
-    }
-  }
+  static bool _isList(dynamic input) => input is Iterable;
 
-  static bool _isMap(dynamic input) {
-    try {
-      return input is Map<String, dynamic>;
-    } catch (_) {
-      return false;
-    }
-  }
+  static bool _isMap(dynamic input) => input is Map<String, dynamic>;
 
   static bool _isSimpleType(dynamic input) {
     try {
