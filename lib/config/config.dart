@@ -16,7 +16,7 @@ class Config {
   static final Config _config = Config._internal();
 
   AnalyticsSettings _settings;
-  Map<String, dynamic> _remoteSettings;
+  Map<String, dynamic>? _remoteSettings;
 
   /// SDK-wide maximum [Duration] to await for e.g. HTTPS requests.
   Duration get defaultTimeout => Duration(
@@ -28,7 +28,7 @@ class Config {
   /// device buffer to hold events until they can be sent/received.
   List<String> get destinations {
     try {
-      return _getRemoteSetting<List>('destinations').cast<String>();
+      return _getRemoteSetting<List>('destinations')!.cast<String>();
     } catch (_) {
       return <String>[];
     }
@@ -58,15 +58,15 @@ class Config {
 
   /// Allows local fine-tuning of [Analytics] parameters.
   AnalyticsSettings get settings => _settings;
-  set settings(AnalyticsSettings analyticsSettings) {
+  set settings(AnalyticsSettings? analyticsSettings) {
     if (analyticsSettings != null) {
       _settings = analyticsSettings;
     }
   }
 
-  T _getRemoteSetting<T>(String key) {
+  T? _getRemoteSetting<T>(String key) {
     try {
-      return _remoteSettings[key] as T;
+      return _remoteSettings?[key] as T?;
     } catch (_) {
       return null;
     }
@@ -75,12 +75,13 @@ class Config {
   /// Downloads remote OTA settings from the specified [url].
   Future<void> download(String url) async {
     try {
-      if (url == null || url.isEmpty) {
+      if (url.isEmpty) {
         return;
       }
 
-      final remoteJsonString = (await get(url).timeout(defaultTimeout)).body;
-      _remoteSettings = json.decode(remoteJsonString) as Map<String, dynamic>;
+      final remoteJsonString =
+          (await get(Uri.parse(url)).timeout(defaultTimeout)).body;
+      _remoteSettings = json.decode(remoteJsonString) as Map<String, dynamic>?;
     } catch (e) {
       Debug().error(e);
     }

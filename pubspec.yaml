@@ -1,31 +1,32 @@
 name: flutter_analytics
 description: A barebones Analytics SDK to collect anonymous metadata from flutter apps.
-version: 7.5.1
+publish_to: none
+version: 7.5.3
 homepage: https://github.com/oakromulo/flutter_analytics
 repository: https://github.com/oakromulo/flutter_analytics.git
 issue_tracker: https://github.com/oakromulo/flutter_analytics/issues
 
 environment:
   flutter: '>=1.12.13+hotfix.5 <2.0.0'
-  sdk: '>=2.7.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  connectivity: ^0.4.9+2
-  device_info: ^0.4.2+7
-  devicelocale: ^0.3.1
+  connectivity: ^3.0.6
+  device_info: ^2.0.2
+  devicelocale: ^0.5.0
   flutter:
     sdk: flutter
-  flutter_persistent_queue: ^6.1.1
-  flutter_udid: ^1.0.1
-  http: ^0.12.2
-  location: ^3.0.2
-  package_info: '>=0.4.3 <2.0.0'
-  path_provider: ^1.6.14
-  recase: ^3.0.0
-  sim_info: ^0.1.1
-  uuid: ^2.2.2
+  flutter_persistent_queue:
+    git: https://github.com/iomu/flutter_persistent_queue
+  flutter_udid: ^2.0.0
+  http: ^0.13.3
+  location: ^4.1.1
+  package_info: ^2.0.2
+  path_provider: ^2.0.2
+  recase: ^4.0.0
+  sim_info:
+    git: https://github.com/arefhosseini/flutter_sim_info
+  uuid: ^3.0.4
 
 dev_dependencies:
-  flutter_driver:
-    sdk: flutter
   test: any

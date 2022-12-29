@@ -3,7 +3,6 @@ library test_app;
 
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_analytics/flutter_analytics.dart';
@@ -193,14 +192,14 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
   }
 
   Widget bodyBuilder() {
@@ -274,13 +273,13 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
     assert(context['app']['build'].toString() == '8');
     assert(context['app']['version'] == '5.6.7');
 
-    final device = context['device'] as Map<String, dynamic>;
+    final device = context['device'] as Map<String, dynamic>?;
 
     if (Platform.isIOS) {
-      assert(device['id'].toString().length == 36);
-      assert(device['manufacturer'].toString().toLowerCase() == 'apple');
-      assert(device['model'] == 'iPhone');
-      assert(device['name'].toString().contains('iPhone'));
+      assert(device!['id'].toString().length == 36);
+      assert(device!['manufacturer'].toString().toLowerCase() == 'apple');
+      assert(device!['model'] == 'iPhone');
+      assert(device!['name'].toString().contains('iPhone'));
       assert(context['os']['name'] == 'iOS');
     }
 
@@ -299,8 +298,8 @@ class _MyAppState extends State<_MyApp> with WidgetsBindingObserver {
 
     assert(props['sdk']['dartEnv'] == 'DEVELOPMENT');
     assert(props['sdk']['sessionId'].toString().length == 36);
-    assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) >= -12);
-    assert(int.tryParse(props['sdk']['tzOffsetHours'].toString()) <= 12);
+    assert(int.tryParse(props['sdk']['tzOffsetHours'].toString())! >= -12);
+    assert(int.tryParse(props['sdk']['tzOffsetHours'].toString())! <= 12);
   }
 
   Future<void> _clear() async {

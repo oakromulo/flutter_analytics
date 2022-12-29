@@ -4,8 +4,7 @@ library setup;
 import 'dart:async' show FutureOr;
 import 'dart:convert' show AsciiCodec;
 
-import 'package:flutter_persistent_queue/flutter_persistent_queue.dart'
-    show PersistentQueue;
+import 'package:flutter_persistent_queue/flutter_persistent_queue.dart' show PersistentQueue;
 import 'package:http/http.dart' show post, Response;
 import '../config/config.dart' show Config;
 import '../debug/debug.dart' show Debug;
@@ -26,16 +25,18 @@ class Setup {
   final SetupParams params;
 
   /// @nodoc
-  Future<void> ready;
+  Future<void>? ready;
 
   final EventBuffer _buffer;
 
-  List<String> _destinations;
-  List<PersistentQueue> _queues;
+  late List<String> _destinations;
+  List<PersistentQueue>? _queues;
 
   /// @nodoc
-  Future<List<PersistentQueue>> get queues =>
-      _buffer.defer<List<PersistentQueue>>(() => _queues);
+  // ignore: lines_longer_than_80_chars
+  Future<List<PersistentQueue>?> get queues => _buffer.defer<List<PersistentQueue>>(
+        () => _queues,
+      );
 
   Future<void> _setup(SetupParams params) async {
     Config().settings = params.settings;
@@ -52,10 +53,12 @@ class Setup {
     _queues = await _initQueues(_destinations, params);
   }
 
-  static List<String> _dedup(List<String> a, List<String> b) =>
-      <String>{...a ?? <String>[], ...b ?? <String>[]}.toList();
+  static List<String> _dedup(List<String> a, List<String>? b) => <String>{
+        ...a,
+        ...b ?? <String>[]
+      }.toList();
 
-  static Future<void> _downloadConfig(String url) async {
+  static Future<void> _downloadConfig(String? url) async {
     try {
       if (url == null || url.isEmpty) {
         return;
@@ -71,19 +74,23 @@ class Setup {
   }
 
   static Future<PersistentQueue> _initQueue(
-      String url, SetupParams params) async {
+    String url,
+    SetupParams params,
+  ) async {
     final headers = <String, String>{
       'bucket': params.bucket ?? '',
       'organization': params.orgId ?? '',
       'version': sdkVersion
     };
 
-    final pq = PersistentQueue(url.hashCode.toString(),
-        onFlush: _onFlush(url, params.onFlush, headers),
-        flushAt: Config().flushAtLength,
-        flushTimeout: Config().flushAtDuration,
-        maxLength: Config().maxQueueLength,
-        nickname: url);
+    final pq = PersistentQueue(
+      url.hashCode.toString(),
+      onFlush: _onFlush(url, params.onFlush, headers),
+      flushAt: Config().flushAtLength,
+      flushTimeout: Config().flushAtDuration,
+      maxLength: Config().maxQueueLength,
+      nickname: url,
+    );
 
     await pq.ready;
 
@@ -93,7 +100,9 @@ class Setup {
   }
 
   static Future<List<PersistentQueue>> _initQueues(
-      List<String> destinations, SetupParams params) async {
+    List<String> destinations,
+    SetupParams params,
+  ) async {
     final queues = <PersistentQueue>[];
 
     for (final url in destinations) {
@@ -104,17 +113,25 @@ class Setup {
   }
 
   static FutureOr Function(List) _onFlush(
-          String url, OnBatchFlush onBatchFlush, Map<String, String> headers) =>
+    String url,
+    OnBatchFlush? onBatchFlush,
+    Map<String, String> headers,
+  ) =>
       (List input) async {
         try {
           final encoder = Encoder(input);
           final batch = encoder.batch;
 
           if (batch.isNotEmpty) {
-            final _post = post(url,
-                body: encoder.toString(),
-                encoding: AsciiCodec(),
-                headers: {...headers, 'batch': encoder.batchId});
+            final _post = post(
+              Uri.parse(url),
+              body: encoder.toString(),
+              encoding: AsciiCodec(),
+              headers: {
+                ...headers,
+                'batch': encoder.batchId
+              },
+            );
             _validatePost(await _post.timeout(Config().defaultTimeout));
           }
 
@@ -151,26 +168,32 @@ class Setup {
 /// @nodoc
 class SetupParams {
   /// @nodoc
-  SetupParams(this.bucket, this.configUrl, this.destinations, this.onFlush,
-      this.orgId, this.settings);
+  SetupParams(
+    this.bucket,
+    this.configUrl,
+    this.destinations,
+    this.onFlush,
+    this.orgId,
+    this.settings,
+  );
 
   /// @nodoc
-  final String bucket;
+  final String? bucket;
 
   /// @nodoc
-  final String configUrl;
+  final String? configUrl;
 
   /// @nodoc
-  final List<String> destinations;
+  final List<String>? destinations;
 
   /// @nodoc
-  final OnBatchFlush onFlush;
+  final OnBatchFlush? onFlush;
 
   /// @nodoc
-  final String orgId;
+  final String? orgId;
 
   /// @nodoc
-  final AnalyticsSettings settings;
+  final AnalyticsSettings? settings;
 }
 
 /// Type signature alias for the optional `onFlush` event handler.

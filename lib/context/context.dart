@@ -1,21 +1,21 @@
 /// @nodoc
 library context;
 
-import '../store/store.dart' show Store;
-import '../version_control.dart' show sdkPackage;
 import './context_app.dart' show contextApp;
 import './context_device.dart' show contextDevice;
 import './context_locale.dart' show contextLocale;
 import './context_location.dart' show ContextLocation;
 import './context_network.dart' show ContextNetwork;
 import './context_os.dart' show contextOS;
+import '../store/store.dart' show Store;
+import '../version_control.dart' show sdkPackage;
 
 /// @nodoc
 class Context {
   static final Future<Map<String, dynamic>> _base = _baseSetup();
 
   /// @nodoc
-  static Map<String, dynamic> traits;
+  static Map<String, dynamic>? traits;
 
   /// @nodoc
   Future<Map<String, dynamic>> toMap() async => <String, dynamic>{

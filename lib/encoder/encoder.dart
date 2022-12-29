@@ -18,7 +18,7 @@ class Encoder {
       if (batch.isEmpty ||
           batch.first.isEmpty ||
           !batch.first.containsKey('messageId')) {
-        throw null;
+        return '';
       }
 
       return batch.first['messageId'].toString();
@@ -41,7 +41,7 @@ class Encoder {
 
   static List<Map<String, dynamic>> _fill(List input) {
     try {
-      final _input = List.of(input ?? []);
+      final _input = List.of(input);
       final _batch = _input.cast<Map<String, dynamic>>();
 
       final sentAt = DateTime.now().toUtc().toIso8601String();

@@ -10,7 +10,7 @@ class ContextNetwork {
   /// @nodoc
   ContextNetwork();
 
-  static final Future<String> _carrier =
+  static final Future<String?> _carrier =
       SimInfo.getCarrierName.catchError((dynamic _) => null);
 
   final _connectivityResult = Connectivity()

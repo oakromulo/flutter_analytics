@@ -26,16 +26,16 @@ class ContextLocation {
 
   final EventBuffer _buffer;
 
-  double _latitude;
-  double _longitude;
-  String _time;
+  double? _latitude;
+  double? _longitude;
+  String? _time;
 
-  Location _location;
-  Duration _refreshInterval;
-  PeriodicTimer _timer;
+  Location? _location;
+  Duration? _refreshInterval;
+  late PeriodicTimer _timer;
 
   /// @nodoc
-  Future<bool> requestPermission() => _buffer.defer(() async {
+  Future<bool?> requestPermission() => _buffer.defer(() async {
         try {
           await _verifySetup(skipPermissions: true);
 
@@ -43,7 +43,7 @@ class ContextLocation {
             throw IgnoreException();
           }
 
-          final result = await _location.requestPermission();
+          final result = await _location!.requestPermission();
 
           return result == PermissionStatus.granted;
         } catch (e, s) {
@@ -78,17 +78,17 @@ class ContextLocation {
       await _verifySetup();
 
       final locationData =
-          await _location.getLocation().timeout(_refreshInterval);
+          await _location?.getLocation().timeout(_refreshInterval!);
 
       if (locationData?.latitude == null || locationData?.longitude == null) {
         throw IgnoreException();
       }
 
-      _latitude = locationData.latitude;
+      _latitude = locationData!.latitude;
       _longitude = locationData.longitude;
 
       if (locationData.time != null) {
-        _time = DateTime.fromMillisecondsSinceEpoch(locationData.time.toInt())
+        _time = DateTime.fromMillisecondsSinceEpoch(locationData.time!.toInt())
             .toUtc()
             .toIso8601String();
       }
@@ -102,7 +102,7 @@ class ContextLocation {
   void _onTick() {
     final refreshInterval = Config().locationRefreshInterval;
 
-    if (_refreshInterval.compareTo(refreshInterval) == 0) {
+    if (_refreshInterval!.compareTo(refreshInterval) == 0) {
       _buffer.defer(_refreshLocation);
     } else {
       _refreshInterval = refreshInterval;
